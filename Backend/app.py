@@ -18,8 +18,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer,String, Float, Boolean
 import os
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
-
-
+from yfinance import ticker
 
 app = Flask(__name__)
 CORS(app)
@@ -51,10 +50,6 @@ class StockPortfolio(db.Model):
     shares=Column(String())
     
 
-
-
-
-
 def TokenRequired(f):
     @wraps(f)
     def wrap(*args,**kwargs):
@@ -68,6 +63,53 @@ def TokenRequired(f):
         return f(*args, **kwargs)
     return wrap
 
+
+@app.route('/api/StockPortfolio', methods =['DELETE'])
+@TokenRequired
+def stockPortfolioDEL():
+    data=request.json
+
+    stockPortfolio=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
+    print()
+    if stockPortfolio:
+        if stockPortfolio.stocks == "" and stockPortfolio.shares =="":
+            return {'message': 'You do not have stocks to sell'},400
+        else:
+            tickerArray = stockPortfolio.stocks.split(',')
+            shareArray = stockPortfolio.shares.split(',')
+            if(data["TICKER"] in tickerArray):
+                for j in range(len(tickerArray)):
+                    if(data["TICKER"] == tickerArray[j]):
+                        if(int(data["SHARE"]) > int(shareArray[j])):
+                            return  {'message': 'You do not own enough shares'},400
+                        elif (int(data["SHARE"]) < int(shareArray[j])):
+                          shareArray[j] = str(int(shareArray[j]) - int(data['SHARE']))
+                        else:
+                            del tickerArray[j]
+                            del shareArray[j]
+            currentStocks = ",".join(tickerArray)
+            currentShares=",".join(shareArray)
+           
+    
+            stockPortfolio.stocks = currentStocks
+            stockPortfolio.shares=currentShares
+            db.session.commit()
+            return {"message": "Deleted shares"}
+
+    else:
+        return {'message': 'You do not own this stock to sell'},400
+            
+
+
+
+
+
+
+
+
+
+
+
 @app.route('/api/StockPortfolio', methods =['POST'])
 @TokenRequired
 def stockPortfolio():
@@ -80,8 +122,22 @@ def stockPortfolio():
             currentStocks= data['TICKER']
             currentShares = data['SHARE']
         else:
-            currentStocks = stockPortfolio.stocks + "," + data['TICKER']
-            currentShares = stockPortfolio.shares + "," + data['SHARE']
+            tickerArray = stockPortfolio.stocks.split(',')
+            shareArray = stockPortfolio.shares.split(',')
+            print(tickerArray)
+            print(shareArray)
+            if(data['TICKER'] in tickerArray):
+                for j in range(len(tickerArray)):
+                    if(data['TICKER'] == tickerArray[j]):
+                        
+                        shareArray[j] = str(int(shareArray[j]) + int(data['SHARE']))
+            else:
+                tickerArray.append(data['TICKER'])
+                shareArray.append(data['SHARE'])
+            
+            currentStocks = ",".join(tickerArray)
+            currentShares=",".join(shareArray)
+           
     
     stockPortfolio.stocks = currentStocks
     stockPortfolio.shares=currentShares
@@ -100,13 +156,19 @@ def stockPortfolioGET():
         stockPortfolioDICT ={}
         stockPortfolioDICT['ticker'] =stockPortfolio.stocks
         stockPortfolioDICT['share'] = stockPortfolio.shares
+
+    tickerArray = stockPortfolioDICT['ticker'].split(',')
+    tickerArrays =[]
+    shareArray = stockPortfolioDICT['share'].split(',')
+    shareArrays =[]
+    print(tickerArray)
+    for i in range(len(tickerArray)):
+        tickerArrays.append(tickerArray[i])
+        shareArrays.append(shareArray[i])
+    stockPortfolioDICT['shareArray']= shareArrays
+    stockPortfolioDICT['tickerArray']= tickerArrays
+
     return jsonify(stockPortfolioDICT=stockPortfolioDICT)
-
-
-
-  
-
-
 
 @app.route('/api/userdata')
 @TokenRequired
@@ -184,7 +246,7 @@ def stockInfo():
     stock = yf.Ticker(ticker)
     return stock.info
 
-@app.route('/newsFeed', methods =['GET'])
+@app.route('/newsFeed', methods =['POST'])
 def newsFeed():
     newsapi = NewsApiClient(api_key='f84069d717b3400aa52221602a964b8d')
 
@@ -210,7 +272,7 @@ def newsFeed():
                                         page_size=20,
                                         page=request.json['page'])
                                         
-    return all_articles;
+    return all_articles
 
 if __name__ == "__main__":
     app.run(debug=True)
