@@ -50,7 +50,6 @@ def signup():
                email=email,
                password=password
         )
-        ##Sends Verifcation email
         userLog = pb.auth().sign_in_with_email_and_password(email, password)
         pb.auth().send_email_verification(userLog['idToken'])
         return {'message': f'Successfully created user {user.uid}'},200
