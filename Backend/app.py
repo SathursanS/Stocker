@@ -66,6 +66,7 @@ def TokenRequired(f):
             return {'message':'Invalid token provided.'},400
         return f(*args, **kwargs)
     return wrap
+
 @app.route('/api/getAllPortfolio')
 @TokenRequired
 def getAll():
@@ -104,8 +105,39 @@ def getAll():
             stockPortfolioDICT['userName'] = portfolio.name
             output.append(stockPortfolioDICT)
     return jsonify(data=output)
+@app.route('/api/unfollow', methods =['DELETE'])
+@TokenRequired
+def unfollow ():
+    user=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
+    other= StockPortfolio.query.filter_by(name= request.json['userName']).first()
 
-@app.route('/api/follow')
+    if(user):
+        if user.tracking =="":
+            return {"message": "You do not track anyone"}
+        else: 
+            tracking = user.tracking.split(',')
+            for users in tracking:
+                if(users == request.json['userName']):
+                    tracking.remove(request.json['userName'])
+                    break
+            currentTracking = ",".join(tracking)
+            user.trackers=currentTracking    
+    if (other):
+        if other.trackers == "":
+            return {"message": "You do not have any followers"}
+        else:
+            trackers = other.trackers.split(',')
+            for users in trackers:
+                if(users ==  user.name):
+                    trackers.remove(user.name)
+                    break
+            currentTrackers = ",".join(trackers)
+            other.trackers=currentTrackers     
+    db.session.commit()
+    return {"message": "You have unfollowed"}
+
+            
+@app.route('/api/follow', methods =['POST'])
 @TokenRequired
 def follow():
     userWhoIsFollowing=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
@@ -208,8 +240,6 @@ def stockPortfolio():
 @app.route('/api/StockPortfolio', methods =['GET'])
 @TokenRequired
 def stockPortfolioGET():
-    data=request.json
-
     stockPortfolio=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
 
     if stockPortfolio:
