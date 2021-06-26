@@ -3,14 +3,63 @@ import { StyleSheet, View, Text, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Input, Button } from 'react-native-elements';
 import Feather from 'react-native-vector-icons/Feather';
+import Toast from 'react-native-toast-message';
+import * as SecureStore from 'expo-secure-store';
 
-const Login = () => {
+const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const setToken = (token) => {
+    return SecureStore.setItemAsync('auth_token', token);
+  };
+
+  const getToken = () => {
+    return SecureStore.getItemAsync('auth_token');
+  };
+
+  const handleSignIn = async () => {
+    let response;
+    let json;
+
+    response = await fetch('http://10.0.0.120:5000/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    json = await response.json();
+
+    if (json.token) {
+      setToken(json.token);
+      navigation.navigate('Navbar');
+    } else if (json.message === 'verify email') {
+      Toast.show({
+        text1: 'Verify Email',
+        text2:
+          'Please verify your account by clicking the link sent to your email.',
+        type: 'info',
+      });
+    } else if (json.message === 'There was an error logging in') {
+      Toast.show({
+        text1: 'Error',
+        text2: 'Your email or password may be incorrect.',
+        type: 'error',
+      });
+    } else {
+      Toast.show({
+        text1: 'Error',
+        text2: 'An error occured while trying to log in. Please try again.',
+        type: 'error',
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Login</Text>
+      <Text style={styles.header}>Welcome</Text>
 
       <View style={styles.inputContainer}>
         <View style={[styles.action, { marginBottom: 20 }]}>
@@ -44,7 +93,11 @@ const Login = () => {
           />
         </View>
 
-        <Button title="Sign In" containerStyle={{ marginTop: 30 }} />
+        <Button
+          title="Sign In"
+          containerStyle={{ marginTop: 30 }}
+          onPress={handleSignIn}
+        />
         <View style={styles.createAccountContainer}>
           <Text>Don't have an account? </Text>
           <Button
@@ -52,6 +105,7 @@ const Login = () => {
             type="clear"
             buttonStyle={{ padding: 0 }}
             titleStyle={{ fontSize: 14 }}
+            onPress={() => navigation.navigate('Signup')}
           />
         </View>
       </View>
