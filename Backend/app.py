@@ -96,10 +96,6 @@ def follow():
     return {"message": "Tracking!"}
 
    
-
-
-
-
 @app.route('/api/StockPortfolio', methods =['DELETE'])
 @TokenRequired
 def stockPortfolioDEL():
@@ -182,17 +178,32 @@ def stockPortfolioGET():
         stockPortfolioDICT ={}
         stockPortfolioDICT['ticker'] =stockPortfolio.stocks
         stockPortfolioDICT['share'] = stockPortfolio.shares
+        stockPortfolioDICT['trackers'] =stockPortfolio.trackers
+        stockPortfolioDICT['tracking'] =stockPortfolio.tracking
+
 
     tickerArray = stockPortfolioDICT['ticker'].split(',')
     tickerArrays =[]
     shareArray = stockPortfolioDICT['share'].split(',')
     shareArrays =[]
+    trackersArray = stockPortfolioDICT['trackers'].split(',')
+    trackersArrays=[]
+    trackingArray = stockPortfolioDICT['tracking'].split(',')
+    trackingArrays =[]
     print(tickerArray)
     for i in range(len(tickerArray)):
         tickerArrays.append(tickerArray[i])
         shareArrays.append(shareArray[i])
+        trackersArrays.append(trackersArray[i])
+        trackingArrays.append(trackingArray[i])
+
     stockPortfolioDICT['shareArray']= shareArrays
     stockPortfolioDICT['tickerArray']= tickerArrays
+    stockPortfolioDICT['trackersArray']= trackersArrays
+    stockPortfolioDICT['trackingArray']= trackingArrays
+
+
+
     stockPortfolioDICT['userName'] = stockPortfolio.name
 
     return jsonify(stockPortfolioDICT=stockPortfolioDICT)
