@@ -1,14 +1,68 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Text, TextInput } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome";
-import { Input, Button } from "react-native-elements";
+import { Button } from "react-native-elements";
 import Feather from "react-native-vector-icons/Feather";
+import Toast from "react-native-toast-message";
+import * as SecureStore from "expo-secure-store";
 
 const SignUp = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  const setToken = (token) => {
+    return SecureStore.setItemAsync("auth_token", token);
+  };
+
+  const getToken = () => {
+    return SecureStore.getItemAsync("auth_token");
+  };
+
+  const handleSignUp = async () => {
+    let response;
+    let json;
+
+    if (confirmPassword !== password) {
+      Toast.show({
+        text1: "Error",
+        text2: "Passwords do not match!",
+        type: "error",
+      });
+      return;
+    }
+
+    response = await fetch("http://192.168.2.191:5000/api/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password, username }),
+    });
+
+    json = await response.json();
+
+    if (json.message === "Successfully created user") {
+      Toast.show({
+        text1: "Success",
+        text2: "Hooray, you're signed up!",
+        type: "success",
+      });
+    } else if (json.message === "Error missing email or password") {
+      Toast.show({
+        text1: "Error",
+        text2: "Please enter an email and password.",
+        type: "error",
+      });
+    } else if (json.message === "Error creating user") {
+      Toast.show({
+        text1: "Error",
+        text2:
+          "This email or username has already been used. Please try again.",
+        type: "error",
+      });
+    }
+  };
 
   return (
     <View style={styles.container}>
