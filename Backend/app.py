@@ -63,6 +63,45 @@ def TokenRequired(f):
         return f(*args, **kwargs)
     return wrap
 
+
+@app.route('/api/StockPortfolio', methods =['DELETE'])
+@TokenRequired
+def stockPortfolio():
+    data=request.json
+
+    stockPortfolio=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
+    if stockPortfolio:
+        if stockPortfolio.stocks == "" and stockPortfolio.shares =="":
+            return {'message': 'You do not have stocks to sell'},400
+        else:
+            tickerArray = stockPortfolio.stocks.split(',')
+            shareArray = stockPortfolio.shares.split(',')
+            if(data['TICKER'] in tickerArray):
+                for j in range(len(tickerArray)):
+                    if(data['TICKER'] == tickerArray[j]):
+                        if(data["SHARE"] > shareArray[j]):
+                            return  {'message': 'You do not own enough shares'},400
+                        elif (data["SHARE"] < shareArray[j]):
+                          shareArray[j] = str(int(shareArray[j]) - int(data['SHARE']))
+                        else:
+                            del tickerArray[j]
+                            del shareArray[j]
+                            
+
+            else:
+                return {'message': 'You do not own this stock to sell'},400
+            
+
+
+
+
+
+
+
+
+
+
+
 @app.route('/api/StockPortfolio', methods =['POST'])
 @TokenRequired
 def stockPortfolio():
