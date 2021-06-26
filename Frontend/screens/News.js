@@ -11,6 +11,7 @@ import {
   Linking,
 } from 'react-native';
 import { Card, ListItem, Button, Icon } from 'react-native-elements';
+import Toast from 'react-native-toast-message';
 
 const News = () => {
   //TODO:
@@ -25,7 +26,7 @@ const News = () => {
   const fetchNewsFeed = async () => {
     let response;
     let json;
-    response = await fetch('http://localhost:5000/newsFeed', {
+    response = await fetch('http://10.0.0.120:5000/newsFeed', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
