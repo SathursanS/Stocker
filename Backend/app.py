@@ -134,6 +134,7 @@ def unfollow ():
             currentTrackers = ",".join(trackers)
             other.trackers=currentTrackers     
     db.session.commit()
+    return {"message": "You have unfollowed"}
 
             
 @app.route('/api/follow', methods =['POST'])
