@@ -79,15 +79,16 @@ def follow():
         else:
             tracking = userWhoIsFollowing.tracking.split(',')
             tracking.append(request.json['userName'])
+        currentTracking=",".join(tracking)
+
     if (userWhoIsFollowed):
         if userWhoIsFollowed.trackers == "":
             trackers = userWhoIsFollowing.name
         else:
             trackers = userWhoIsFollowed.trackers.split(',')
             trackers.append(userWhoIsFollowing.name)
+        currentTrackers = ",".join(trackers)
 
-    currentTrackers = ",".join(trackers)
-    currentTracking=",".join(tracking)
     userWhoIsFollowing.tracking= currentTracking
     userWhoIsFollowed.trackers=currentTrackers     
     db.session.commit()
