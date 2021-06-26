@@ -34,6 +34,30 @@ def TokenRequired(f):
         return f(*args, **kwargs)
     return wrap
 
+@app.route('/api/userdata')
+@TokenRequired
+def userdata():
+    return {'data': request.user}, 200
+
+@app.route('/api/signup')
+def signup():
+    email = request.json['email']
+    password = request.json['password']
+    if email is None or password is None:
+        return {'message': 'Error missing email or password'},400
+    try:
+        user = auth.create_user(
+               email=email,
+               password=password
+        )
+        ##Sends Verifcation email
+        userLog = pb.auth().sign_in_with_email_and_password(email, password)
+        pb.auth().send_email_verification(userLog['idToken'])
+        return {'message': f'Successfully created user {user.uid}'},200
+    except:
+        return {'message': 'Error creating user'},400
+
+
 @app.route('/listofStocks', methods = ['GET'])
 def listofStocks ():
     f = open('sp500.json')
