@@ -51,10 +51,6 @@ class StockPortfolio(db.Model):
     shares=Column(String())
     
 
-
-
-
-
 def TokenRequired(f):
     @wraps(f)
     def wrap(*args,**kwargs):
@@ -100,11 +96,22 @@ def stockPortfolioGET():
         stockPortfolioDICT ={}
         stockPortfolioDICT['ticker'] =stockPortfolio.stocks
         stockPortfolioDICT['share'] = stockPortfolio.shares
+
+    tickerArray = stockPortfolioDICT['ticker'].split(',')
+    tickerArrays =[]
+    shareArray = stockPortfolioDICT['share'].split(',')
+    shareArrays =[]
+
+    for i in range(len(tickerArray)):
+        tickerArrays.append(tickerArray[i])
+        shareArrays.append(shareArray[i])
+    stockPortfolioDICT['shareArray']= shareArrays
+    stockPortfolioDICT['tickerArray']= tickerArrays
+
+    
+
+
     return jsonify(stockPortfolioDICT=stockPortfolioDICT)
-
-
-
-  
 
 
 
