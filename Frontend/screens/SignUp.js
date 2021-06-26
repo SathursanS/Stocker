@@ -3,21 +3,12 @@ import { StyleSheet, View, Text, TextInput } from "react-native";
 import { Button } from "react-native-elements";
 import Feather from "react-native-vector-icons/Feather";
 import Toast from "react-native-toast-message";
-import * as SecureStore from "expo-secure-store";
 
 const SignUp = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  const setToken = (token) => {
-    return SecureStore.setItemAsync("auth_token", token);
-  };
-
-  const getToken = () => {
-    return SecureStore.getItemAsync("auth_token");
-  };
 
   const handleSignUp = async () => {
     let response;
@@ -131,16 +122,11 @@ const SignUp = () => {
           />
         </View>
 
-        <Button title="Sign In" containerStyle={{ marginTop: 30 }} />
-        <View style={styles.createAccountContainer}>
-          <Text>Already have an account? </Text>
-          <Button
-            title="Login"
-            type="clear"
-            buttonStyle={{ padding: 0 }}
-            titleStyle={{ fontSize: 14 }}
-          />
-        </View>
+        <Button
+          title="Sign Up"
+          containerStyle={{ marginTop: 30 }}
+          onPress={handleSignUp}
+        />
       </View>
     </View>
   );
