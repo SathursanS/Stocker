@@ -13,6 +13,8 @@ import json
 from flask_cors import CORS
 from functools import wraps
 from firebase_admin import firestore 
+from newsapi import NewsApiClient
+
 
 app = Flask(__name__)
 CORS(app)
@@ -62,6 +64,21 @@ def getAccountInfo():
     info = pb.auth().send_password_reset_email(email)
     return info 
 
+@app.route('/api/login')
+def token():
+    email = request.json['email']
+    password = request.json['password']
+    try:
+        user = pb.auth().sign_in_with_email_and_password(email, password)
+        token = user['idToken']
+        val = pb.auth().get_account_info(token)
+        if( val['users'][0]['emailVerified']):
+            return {'token': token}, 200
+        else:
+            return {'message':'verify email'},400         
+    except:
+       return {'message': 'There was an error logging in'},400
+       
 @app.route('/listofStocks', methods = ['GET'])
 def listofStocks ():
     f = open('sp500.json')
