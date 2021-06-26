@@ -20,8 +20,6 @@ import os
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from yfinance import ticker
 
-
-
 app = Flask(__name__)
 CORS(app)
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -227,7 +225,7 @@ def newsFeed():
                                         page_size=20,
                                         page=request.json['page'])
                                         
-    return all_articles;
+    return all_articles
 
 if __name__ == "__main__":
     app.run(debug=True)
