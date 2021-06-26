@@ -70,26 +70,34 @@ def stockPortfolioDEL():
     data=request.json
 
     stockPortfolio=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
+    print()
     if stockPortfolio:
         if stockPortfolio.stocks == "" and stockPortfolio.shares =="":
             return {'message': 'You do not have stocks to sell'},400
         else:
             tickerArray = stockPortfolio.stocks.split(',')
             shareArray = stockPortfolio.shares.split(',')
-            if(data['TICKER'] in tickerArray):
+            if(data["TICKER"] in tickerArray):
                 for j in range(len(tickerArray)):
-                    if(data['TICKER'] == tickerArray[j]):
-                        if(data["SHARE"] > shareArray[j]):
+                    if(data["TICKER"] == tickerArray[j]):
+                        if(int(data["SHARE"]) > int(shareArray[j])):
                             return  {'message': 'You do not own enough shares'},400
-                        elif (data["SHARE"] < shareArray[j]):
+                        elif (int(data["SHARE"]) < int(shareArray[j])):
                           shareArray[j] = str(int(shareArray[j]) - int(data['SHARE']))
                         else:
                             del tickerArray[j]
                             del shareArray[j]
+            currentStocks = ",".join(tickerArray)
+            currentShares=",".join(shareArray)
+           
+    
+            stockPortfolio.stocks = currentStocks
+            stockPortfolio.shares=currentShares
+            db.session.commit()
+            return {"message": "Deleted shares"}
 
-
-            else:
-                return {'message': 'You do not own this stock to sell'},400
+    else:
+        return {'message': 'You do not own this stock to sell'},400
             
 
 
