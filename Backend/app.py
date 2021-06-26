@@ -27,6 +27,12 @@ def stockValues():
 
     return data
 
+    
+@app.route('/stockInfo', methods =['GET'])
+def stockInfo():
+    ticker = request.json['TICKER']
+    stock = yf.Ticker(ticker)
+    return stock.info
 
 if __name__ == "__main__":
     app.run(debug=True)
