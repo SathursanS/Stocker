@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   StyleSheet,
   Text,
@@ -13,41 +13,66 @@ import {
 } from 'react-native';
 import { Card, ListItem, Button, Icon } from 'react-native-elements';
 import Toast from 'react-native-toast-message';
+import * as SecureStore from 'expo-secure-store';
+import { MainContext } from '../context/MainContext';
 
 const News = () => {
-  //TODO:
-  //Add header
-  //Add loading indicator when loading the news
-  //When you scroll to end of scroll view, load next page of news
-
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [newsList, setNewsList] = useState([]);
 
+  const context = useContext(MainContext);
+
+  const getToken = () => {
+    return SecureStore.getItemAsync('auth_token');
+  };
+
   const fetchNewsFeed = async () => {
     let response;
     let json;
-    response = await fetch('http://10.0.0.120:5000/newsFeed', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ page }),
-    });
+    let authToken;
 
-    json = await response.json();
-    setNewsList(json.articles);
-    setLoading(false);
+    getToken().then(async (token) => {
+      authToken = token;
+
+      response = await fetch('http://10.0.0.120:5000/newsFeed', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-tokens': authToken,
+        },
+        body: JSON.stringify({ page }),
+      });
+
+      json = await response.json();
+      setNewsList(json.articles);
+      setLoading(false);
+    });
   };
 
   useEffect(() => {
+    setLoading(true);
     fetchNewsFeed();
-  }, []);
+  }, [context.updateNews]);
 
   return (
     <SafeAreaView style={styles.safeContainer}>
       {loading && <ActivityIndicator size="large" color="#0066CC" />}
       <ScrollView style={styles.scrollContainer}>
+        {newsList.length === 0 && !loading && (
+          <View style={styles.emptyMessage}>
+            <Text
+              style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}
+            >
+              Get news on stocks added to your portfolio.
+            </Text>
+            <Text style={{ fontSize: 16 }}>
+              To add stocks to your porfolio, go to the stocks lookup tab,
+              search for the stocks you invest in, and click the + icon to add
+              it to your portfolio.
+            </Text>
+          </View>
+        )}
         {newsList.map((item) => {
           return (
             <TouchableOpacity
@@ -111,6 +136,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  emptyMessage: {
+    padding: 20,
   },
 });
 
