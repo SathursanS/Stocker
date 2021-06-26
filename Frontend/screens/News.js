@@ -14,6 +14,7 @@ import { Card, ListItem, Button, Icon } from 'react-native-elements';
 
 const News = () => {
   //TODO:
+  //Add header
   //Add loading indicator when loading the news
   //When you scroll to end of scroll view, load next page of news
 
@@ -24,7 +25,7 @@ const News = () => {
   const fetchNewsFeed = async () => {
     let response;
     let json;
-    response = await fetch('http://10.0.0.120:5000/newsFeed', {
+    response = await fetch('http://localhost:5000/newsFeed', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
