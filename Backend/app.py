@@ -246,7 +246,7 @@ def stockInfo():
     stock = yf.Ticker(ticker)
     return stock.info
 
-@app.route('/newsFeed', methods =['GET'])
+@app.route('/newsFeed', methods =['POST'])
 def newsFeed():
     newsapi = NewsApiClient(api_key='f84069d717b3400aa52221602a964b8d')
 
