@@ -249,7 +249,7 @@ def stockPortfolioGET():
 def userdata():
     return {'data': request.user}, 200
 
-@app.route('/api/signup')
+@app.route('/api/signup', methods = ['POST'])
 def signup():
     email = request.json['email']
     password = request.json['password']
