@@ -46,6 +46,7 @@ pb = pyrebase.initialize_app(json.load(open('config.json')))
 class StockPortfolio(db.Model):
     id=Column(Integer, primary_key=True)
     public_id=Column(String(), unique=True)
+    name = Column(String())
     stocks=Column(String())
     shares=Column(String())
     tracking= Column(String())
@@ -65,6 +66,38 @@ def TokenRequired(f):
             return {'message':'Invalid token provided.'},400
         return f(*args, **kwargs)
     return wrap
+
+@app.route('/api/follow')
+@TokenRequired
+def follow():
+    userWhoIsFollowing=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
+    userWhoIsFollowed = StockPortfolio.query.filter_by(name= request.json['userName']).first()
+
+    if(userWhoIsFollowing):
+        if userWhoIsFollowing.tracking =="" :
+            tracking= request.json['userName']
+            currentTracking=tracking
+        else:
+            tracking = userWhoIsFollowing.tracking.split(',')
+            tracking.append(request.json['userName'])
+            currentTracking=",".join(tracking)
+        userWhoIsFollowing.tracking= currentTracking
+    if (userWhoIsFollowed):
+        if userWhoIsFollowed.trackers == "":
+            trackers = userWhoIsFollowing.name
+            currentTrackers=trackers
+        else:
+            trackers = userWhoIsFollowed.trackers.split(',')
+            trackers.append(userWhoIsFollowing.name)
+            currentTrackers = ",".join(trackers)
+
+        userWhoIsFollowed.trackers=currentTrackers     
+    db.session.commit()
+    return {"message": "Tracking!"}
+
+   
+
+
 
 
 @app.route('/api/StockPortfolio', methods =['DELETE'])
@@ -160,6 +193,7 @@ def stockPortfolioGET():
         shareArrays.append(shareArray[i])
     stockPortfolioDICT['shareArray']= shareArrays
     stockPortfolioDICT['tickerArray']= tickerArrays
+    stockPortfolioDICT['userName'] = stockPortfolio.name
 
     return jsonify(stockPortfolioDICT=stockPortfolioDICT)
 
@@ -172,7 +206,8 @@ def userdata():
 def signup():
     email = request.json['email']
     password = request.json['password']
-    if email is None or password is None:
+    userName=request.json['userName']
+    if email is None or password is None or userName is None:
         return {'message': 'Error missing email or password'},400
     try:
         user = auth.create_user(
@@ -180,15 +215,17 @@ def signup():
                password=password
         )
         
-
+        print(request)
         userLog = pb.auth().sign_in_with_email_and_password(email, password)
         pb.auth().send_email_verification(userLog['idToken'])
         newPortfolio=StockPortfolio(
                              public_id=user.uid,
+                             name = userName,
                              stocks= "",
                              shares="",
                              tracking="",
-                             trackers=""
+                             trackers="",
+                            
                         )
         db.session.add(newPortfolio)
         db.session.commit()
