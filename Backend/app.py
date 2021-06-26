@@ -66,7 +66,7 @@ def TokenRequired(f):
 
 @app.route('/api/StockPortfolio', methods =['DELETE'])
 @TokenRequired
-def stockPortfolio():
+def stockPortfolioDEL():
     data=request.json
 
     stockPortfolio=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
@@ -86,7 +86,7 @@ def stockPortfolio():
                         else:
                             del tickerArray[j]
                             del shareArray[j]
-                            
+
 
             else:
                 return {'message': 'You do not own this stock to sell'},400
