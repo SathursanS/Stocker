@@ -127,12 +127,7 @@ def stockPortfolioGET():
     stockPortfolioDICT['shareArray']= shareArrays
     stockPortfolioDICT['tickerArray']= tickerArrays
 
-    
-
-
     return jsonify(stockPortfolioDICT=stockPortfolioDICT)
-
-
 
 @app.route('/api/userdata')
 @TokenRequired
