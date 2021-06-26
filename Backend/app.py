@@ -18,6 +18,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer,String, Float, Boolean
 import os
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
+from yfinance import ticker
 
 
 
@@ -51,10 +52,6 @@ class StockPortfolio(db.Model):
     shares=Column(String())
     
 
-
-
-
-
 def TokenRequired(f):
     @wraps(f)
     def wrap(*args,**kwargs):
@@ -80,8 +77,26 @@ def stockPortfolio():
             currentStocks= data['TICKER']
             currentShares = data['SHARE']
         else:
-            currentStocks = stockPortfolio.stocks + "," + data['TICKER']
-            currentShares = stockPortfolio.shares + "," + data['SHARE']
+            tickerArray = stockPortfolio.stocks.split(',')
+            tickerArrays =[]
+            shareArray = stockPortfolio.shares.split(',')
+            shareArrays =[]
+            for i in range(len(tickerArray)):
+                tickerArrays.append(tickerArray[i])
+                shareArrays.append(shareArray[i])
+            if(data['TICKER'] in tickerArrays):
+                for j in range(len(tickerArrays)):
+                    if(data['TICKER'] == tickerArrays[j]):
+                        val = ord(shareArrays[j])
+                        val = val +1
+                        shareArrays[j] = chr(val)
+            else:
+                tickerArrays.append(['TICKER'])
+                tickerArrays.append(['SHARE'])
+            
+            currentStocks = ",".join(tickerArrays)
+            currentShares=",".join(shareArrays)
+           
     
     stockPortfolio.stocks = currentStocks
     stockPortfolio.shares=currentShares
@@ -100,11 +115,22 @@ def stockPortfolioGET():
         stockPortfolioDICT ={}
         stockPortfolioDICT['ticker'] =stockPortfolio.stocks
         stockPortfolioDICT['share'] = stockPortfolio.shares
+
+    tickerArray = stockPortfolioDICT['ticker'].split(',')
+    tickerArrays =[]
+    shareArray = stockPortfolioDICT['share'].split(',')
+    shareArrays =[]
+
+    for i in range(len(tickerArray)):
+        tickerArrays.append(tickerArray[i])
+        shareArrays.append(shareArray[i])
+    stockPortfolioDICT['shareArray']= shareArrays
+    stockPortfolioDICT['tickerArray']= tickerArrays
+
+    
+
+
     return jsonify(stockPortfolioDICT=stockPortfolioDICT)
-
-
-
-  
 
 
 
