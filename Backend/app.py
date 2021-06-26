@@ -80,12 +80,39 @@ def stockValues():
 
     return data
 
-
 @app.route('/stockInfo', methods =['GET'])
 def stockInfo():
     ticker = request.json['TICKER']
     stock = yf.Ticker(ticker)
     return stock.info
+
+@app.route('/newsFeed', methods =['GET'])
+def newsFeed():
+    newsapi = NewsApiClient(api_key='f84069d717b3400aa52221602a964b8d')
+
+    #CODE TO GET ARRAY STRING FROM DATABASE
+    tickerList = "AAPL,MSFT"
+    ########################################
+
+    tickerArray = tickerList.split(',')
+    
+    tickerQuery = ""
+    for ticker in tickerArray:
+        stock = yf.Ticker(ticker)
+        if (len(tickerQuery) > 0):
+            tickerQuery = tickerQuery + " OR " + stock.info["longName"]
+        else:
+            tickerQuery = tickerQuery + stock.info["longName"]
+    
+
+    all_articles = newsapi.get_everything(q=tickerQuery,
+                                         to=datetime.today().strftime('%Y-%m-%d'),
+                                        language='en',
+                                        sort_by='relevancy',
+                                        page_size=20,
+                                        page=request.json['page'])
+                                        
+    return all_articles;
 
 if __name__ == "__main__":
     app.run(debug=True)
