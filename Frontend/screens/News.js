@@ -9,6 +9,7 @@ import {
   StatusBar,
   TouchableOpacity,
   Linking,
+  ActivityIndicator,
 } from 'react-native';
 import { Card, ListItem, Button, Icon } from 'react-native-elements';
 import Toast from 'react-native-toast-message';
@@ -36,15 +37,16 @@ const News = () => {
 
     json = await response.json();
     setNewsList(json.articles);
+    setLoading(false);
   };
 
   useEffect(() => {
     fetchNewsFeed();
-    setLoading(false);
   }, []);
 
   return (
     <SafeAreaView style={styles.safeContainer}>
+      {loading && <ActivityIndicator size="large" color="#0066CC" />}
       <ScrollView style={styles.scrollContainer}>
         {newsList.map((item) => {
           return (
@@ -97,6 +99,9 @@ const News = () => {
 const styles = StyleSheet.create({
   safeContainer: {
     marginTop: StatusBar.currentHeight,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   scrollContainer: {
     paddingBottom: 20,
