@@ -16,6 +16,8 @@
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-41.0.0.tar.gz",
     "react-native-elements": "^3.4.2",
+    "react-native-screens": "^3.4.0",
+    "react-native-toast-message": "^1.4.9",
     "react-native-web": "~0.13.12"
   },
   "devDependencies": {
