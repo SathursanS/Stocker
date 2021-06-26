@@ -49,7 +49,7 @@ class StockPortfolio(db.Model):
     stocks=Column(String())
     shares=Column(String())
     tracking= Column(String())
-    tracked = Column(String())
+    trackers = Column(String())
    
     
 
@@ -188,7 +188,7 @@ def signup():
                              stocks= "",
                              shares="",
                              tracking="",
-                             tracked=""
+                             trackers=""
                         )
         db.session.add(newPortfolio)
         db.session.commit()
