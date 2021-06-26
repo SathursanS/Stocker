@@ -1,16 +1,10 @@
 import React, { useContext } from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
-import { MainContext } from '../context/MainContext';
+import { StyleSheet, Text, View } from 'react-native';
 
 const Profile = () => {
-  const context = useContext(MainContext);
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Profile :)</Text>
-      <Button
-        title="Update News"
-        onPress={() => context.setUpdateNews(!context.updateNews)}
-      />
     </View>
   );
 };
