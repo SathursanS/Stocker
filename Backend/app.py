@@ -66,6 +66,44 @@ def TokenRequired(f):
             return {'message':'Invalid token provided.'},400
         return f(*args, **kwargs)
     return wrap
+@app.route('/api/getAllStock')
+@TokenRequired
+def getAll():
+    stockPortfolio=StockPortfolio.query.filter_by().all()
+    output=[]
+
+    if stockPortfolio:
+        for portfolio in stockPortfolio:
+            stockPortfolioDICT ={}
+            stockPortfolioDICT['ticker'] =portfolio.stocks
+            stockPortfolioDICT['share'] = portfolio.shares
+            stockPortfolioDICT['trackers'] =portfolio.trackers
+            stockPortfolioDICT['tracking'] =portfolio.tracking
+
+
+            tickerArray = stockPortfolioDICT['ticker'].split(',')
+            tickerArrays =[]
+            shareArray = stockPortfolioDICT['share'].split(',')
+            shareArrays =[]
+            trackersArray = stockPortfolioDICT['trackers'].split(',')
+            trackersArrays=[]
+            trackingArray = stockPortfolioDICT['tracking'].split(',')
+            trackingArrays =[]
+            print(tickerArray)
+            for i in range(len(tickerArray)):
+                tickerArrays.append(tickerArray[i])
+                shareArrays.append(shareArray[i])
+                trackersArrays.append(trackersArray[i])
+                trackingArrays.append(trackingArray[i])
+
+            stockPortfolioDICT['shareArray']= shareArrays
+            stockPortfolioDICT['tickerArray']= tickerArrays
+            stockPortfolioDICT['trackersArray']= trackersArrays
+            stockPortfolioDICT['trackingArray']= trackingArrays
+
+            stockPortfolioDICT['userName'] = portfolio.name
+            output.append(stockPortfolioDICT)
+    return jsonify(data=output)
 
 @app.route('/api/follow')
 @TokenRequired
@@ -201,8 +239,6 @@ def stockPortfolioGET():
     stockPortfolioDICT['tickerArray']= tickerArrays
     stockPortfolioDICT['trackersArray']= trackersArrays
     stockPortfolioDICT['trackingArray']= trackingArrays
-
-
 
     stockPortfolioDICT['userName'] = stockPortfolio.name
 
