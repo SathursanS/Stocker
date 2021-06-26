@@ -66,7 +66,7 @@ def TokenRequired(f):
             return {'message':'Invalid token provided.'},400
         return f(*args, **kwargs)
     return wrap
-@app.route('/api/getAllStock')
+@app.route('/api/getAllPortfolio')
 @TokenRequired
 def getAll():
     stockPortfolio=StockPortfolio.query.filter_by().all()
