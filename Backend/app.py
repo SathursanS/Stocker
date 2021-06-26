@@ -57,6 +57,11 @@ def signup():
     except:
         return {'message': 'Error creating user'},400
 
+@app.route ('/api/resetPassword')
+def getAccountInfo():
+    email= request.json['email']
+    info = pb.auth().send_password_reset_email(email)
+    return info 
 
 @app.route('/listofStocks', methods = ['GET'])
 def listofStocks ():
