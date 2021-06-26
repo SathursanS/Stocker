@@ -276,7 +276,7 @@ def signup():
                         )
         db.session.add(newPortfolio)
         db.session.commit()
-        return {'message': f'Successfully created user {user.uid}'},200
+        return {'message': 'Successfully created user'},200
     except:
         return {'message': 'Error creating user'},400
 
@@ -286,7 +286,7 @@ def getAccountInfo():
     info = pb.auth().send_password_reset_email(email)
     return info 
 
-@app.route('/api/login')
+@app.route('/api/login', methods = ['POST'])
 def token():
     email = request.json['email']
     password = request.json['password']
