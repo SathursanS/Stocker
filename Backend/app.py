@@ -208,7 +208,6 @@ def stockPortfolio():
 @app.route('/api/StockPortfolio', methods =['GET'])
 @TokenRequired
 def stockPortfolioGET():
-    data=request.json
 
     stockPortfolio=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
 
@@ -326,32 +325,36 @@ def stockInfo():
     return stock.info
 
 @app.route('/newsFeed', methods =['POST'])
+@TokenRequired
 def newsFeed():
     newsapi = NewsApiClient(api_key='f84069d717b3400aa52221602a964b8d')
 
-    #CODE TO GET ARRAY STRING FROM DATABASE
-    tickerList = "AAPL,MSFT"
-    ########################################
+    stockPortfolio=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
+    tickerList = stockPortfolio.stocks
 
     tickerArray = tickerList.split(',')
     
     tickerQuery = ""
     for ticker in tickerArray:
         stock = yf.Ticker(ticker)
-        if (len(tickerQuery) > 0):
-            tickerQuery = tickerQuery + " OR " + stock.info["longName"]
-        else:
-            tickerQuery = tickerQuery + stock.info["longName"]
+        if (ticker != ''):
+            if (len(tickerQuery) > 0):
+                tickerQuery = tickerQuery + " OR " + stock.info["longName"]
+            else:
+                tickerQuery = tickerQuery + stock.info["longName"]
     
 
-    all_articles = newsapi.get_everything(q=tickerQuery,
-                                         to=datetime.today().strftime('%Y-%m-%d'),
-                                        language='en',
-                                        sort_by='relevancy',
-                                        page_size=20,
-                                        page=request.json['page'])
-                                        
-    return all_articles
+    if (tickerQuery != ''):
+        all_articles = newsapi.get_everything(q=tickerQuery,
+                                            to=datetime.today().strftime('%Y-%m-%d'),
+                                            language='en',
+                                            sort_by='relevancy',
+                                            page_size=20,
+                                            page=request.json['page'])
+                                            
+        return all_articles
+    
+    return { "articles": [] }
 
 if __name__ == "__main__":
     app.run(debug=True)
