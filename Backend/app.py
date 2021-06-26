@@ -15,7 +15,11 @@ def listofStocks ():
     data = json.load(f)
     return jsonify(data)
 
-
+# @app.route('/marketValue',methods =['GEt'])
+# def stockValues():
+#     ticker =request.json['TICKER']
+#     startDate = request.json['START']
+#     endDate = request.json['END']
 
 
 if __name__ == "__main__":
