@@ -67,6 +67,34 @@ def TokenRequired(f):
         return f(*args, **kwargs)
     return wrap
 
+@app.route('/api/follow')
+@TokenRequired
+def follow():
+    userWhoIsFollowing=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
+    userWhoIsFollowed = StockPortfolio.query.filter_by(public_id= request.json['userName']).first()
+
+    if(userWhoIsFollowing):
+        if userWhoIsFollowing.tracking =="" :
+            tracking= request.json['userName']
+        else:
+            tracking = userWhoIsFollowing.tracking.split(',')
+            tracking.append(request.json['userName'])
+    if (userWhoIsFollowed):
+        if userWhoIsFollowed.trackers == "":
+            trackers = userWhoIsFollowing.name
+        else:
+            trackers = userWhoIsFollowed.trackers.split(',')
+            trackers.append(userWhoIsFollowing.name)
+
+    currentTrackers = ",".join(trackers)
+    currentTracking=",".join(tracking)
+    userWhoIsFollowing.tracking= currentTracking
+    userWhoIsFollowed.trackers=currentTrackers     
+    db.session.commit()
+   
+
+
+
 
 @app.route('/api/StockPortfolio', methods =['DELETE'])
 @TokenRequired
@@ -161,6 +189,7 @@ def stockPortfolioGET():
         shareArrays.append(shareArray[i])
     stockPortfolioDICT['shareArray']= shareArrays
     stockPortfolioDICT['tickerArray']= tickerArrays
+    stockPortfolioDICT['userName'] = stockPortfolio.name
 
     return jsonify(stockPortfolioDICT=stockPortfolioDICT)
 
