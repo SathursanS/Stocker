@@ -28,7 +28,7 @@ const SignUp = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password, username }),
+      body: JSON.stringify({ email, password, userName: username }),
     });
 
     json = await response.json();
@@ -36,7 +36,7 @@ const SignUp = () => {
     if (json.message === "Successfully created user") {
       Toast.show({
         text1: "Success",
-        text2: "Hooray, you're signed up!",
+        text2: "Hooray, you're signed up! Please verify the email sent to you.",
         type: "success",
       });
     } else if (json.message === "Error missing email or password") {
