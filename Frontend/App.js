@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import Navbar from './components/navbar/navbar';
 import Toast from 'react-native-toast-message';
+import Login from './screens/Login';
 
 export default function App() {
   return (
@@ -14,7 +15,8 @@ export default function App() {
     // </View>
 
     <NavigationContainer>
-      <Navbar />
+      {/* <Navbar /> */}
+      <Login />
       <Toast ref={(ref) => Toast.setRef(ref)} />
     </NavigationContainer>
   );
