@@ -20,8 +20,6 @@ import os
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from yfinance import ticker
 
-
-
 app = Flask(__name__)
 CORS(app)
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -78,24 +76,20 @@ def stockPortfolio():
             currentShares = data['SHARE']
         else:
             tickerArray = stockPortfolio.stocks.split(',')
-            tickerArrays =[]
             shareArray = stockPortfolio.shares.split(',')
-            shareArrays =[]
-            for i in range(len(tickerArray)):
-                tickerArrays.append(tickerArray[i])
-                shareArrays.append(shareArray[i])
-            if(data['TICKER'] in tickerArrays):
-                for j in range(len(tickerArrays)):
-                    if(data['TICKER'] == tickerArrays[j]):
-                        val = ord(shareArrays[j])
-                        val = val +1
-                        shareArrays[j] = chr(val)
+            print(tickerArray)
+            print(shareArray)
+            if(data['TICKER'] in tickerArray):
+                for j in range(len(tickerArray)):
+                    if(data['TICKER'] == tickerArray[j]):
+                        
+                        shareArray[j] = str(int(shareArray[j]) + int(data['SHARE']))
             else:
-                tickerArrays.append(['TICKER'])
-                tickerArrays.append(['SHARE'])
+                tickerArray.append(data['TICKER'])
+                shareArray.append(data['SHARE'])
             
-            currentStocks = ",".join(tickerArrays)
-            currentShares=",".join(shareArrays)
+            currentStocks = ",".join(tickerArray)
+            currentShares=",".join(shareArray)
            
     
     stockPortfolio.stocks = currentStocks
@@ -120,19 +114,14 @@ def stockPortfolioGET():
     tickerArrays =[]
     shareArray = stockPortfolioDICT['share'].split(',')
     shareArrays =[]
-
+    print(tickerArray)
     for i in range(len(tickerArray)):
         tickerArrays.append(tickerArray[i])
         shareArrays.append(shareArray[i])
     stockPortfolioDICT['shareArray']= shareArrays
     stockPortfolioDICT['tickerArray']= tickerArrays
 
-    
-
-
     return jsonify(stockPortfolioDICT=stockPortfolioDICT)
-
-
 
 @app.route('/api/userdata')
 @TokenRequired
@@ -236,7 +225,7 @@ def newsFeed():
                                         page_size=20,
                                         page=request.json['page'])
                                         
-    return all_articles;
+    return all_articles
 
 if __name__ == "__main__":
     app.run(debug=True)
