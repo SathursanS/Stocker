@@ -48,6 +48,9 @@ class StockPortfolio(db.Model):
     public_id=Column(String(), unique=True)
     stocks=Column(String())
     shares=Column(String())
+    tracking= Column(String())
+    trackers = Column(String())
+   
     
 
 def TokenRequired(f):
@@ -99,16 +102,6 @@ def stockPortfolioDEL():
     else:
         return {'message': 'You do not own this stock to sell'},400
             
-
-
-
-
-
-
-
-
-
-
 
 @app.route('/api/StockPortfolio', methods =['POST'])
 @TokenRequired
@@ -193,7 +186,9 @@ def signup():
         newPortfolio=StockPortfolio(
                              public_id=user.uid,
                              stocks= "",
-                             shares=""
+                             shares="",
+                             tracking="",
+                             trackers=""
                         )
         db.session.add(newPortfolio)
         db.session.commit()
