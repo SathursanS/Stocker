@@ -71,27 +71,30 @@ def TokenRequired(f):
 @TokenRequired
 def follow():
     userWhoIsFollowing=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
-    userWhoIsFollowed = StockPortfolio.query.filter_by(public_id= request.json['userName']).first()
+    userWhoIsFollowed = StockPortfolio.query.filter_by(name= request.json['userName']).first()
 
     if(userWhoIsFollowing):
         if userWhoIsFollowing.tracking =="" :
             tracking= request.json['userName']
+            currentTracking=tracking
         else:
             tracking = userWhoIsFollowing.tracking.split(',')
             tracking.append(request.json['userName'])
-        currentTracking=",".join(tracking)
-
+            currentTracking=",".join(tracking)
+        userWhoIsFollowing.tracking= currentTracking
     if (userWhoIsFollowed):
         if userWhoIsFollowed.trackers == "":
             trackers = userWhoIsFollowing.name
+            currentTrackers=trackers
         else:
             trackers = userWhoIsFollowed.trackers.split(',')
             trackers.append(userWhoIsFollowing.name)
-        currentTrackers = ",".join(trackers)
+            currentTrackers = ",".join(trackers)
 
-    userWhoIsFollowing.tracking= currentTracking
-    userWhoIsFollowed.trackers=currentTrackers     
+        userWhoIsFollowed.trackers=currentTrackers     
     db.session.commit()
+    return {"message": "Tracking!"}
+
    
 
 
