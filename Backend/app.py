@@ -14,14 +14,46 @@ from flask_cors import CORS
 from functools import wraps
 from firebase_admin import firestore 
 from newsapi import NewsApiClient
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Column, Integer,String, Float, Boolean
+import os
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
+
 
 
 app = Flask(__name__)
 CORS(app)
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///' + os.path.join(basedir,'users.db')
+app.config['SECRET_KEY']='secret-key'
+#MIGHT NOT BE NEEDED
+s = URLSafeTimedSerializer('SECRET_KEY')
+
+db=SQLAlchemy(app)
+@app.cli.command('dbCreate')
+def db_create():
+    db.create_all()
+    print('Database created')
+
+@app.cli.command('dbDrop')
+def db_drop():
+    db.drop_all()
+    print('Database Dropped')
 
 cred = credentials.Certificate('key.json')
 firebase = firebase_admin.initialize_app(cred)
 pb = pyrebase.initialize_app(json.load(open('config.json')))
+
+class StockPortfolio(db.Model):
+    id=Column(Integer, primary_key=True)
+    public_id=Column(String(), unique=True)
+    stocks=Column(String())
+    shares=Column(String())
+    
+
+
+
+
 
 def TokenRequired(f):
     @wraps(f)
@@ -35,6 +67,46 @@ def TokenRequired(f):
             return {'message':'Invalid token provided.'},400
         return f(*args, **kwargs)
     return wrap
+
+@app.route('/api/StockPortfolio', methods =['POST'])
+@TokenRequired
+def stockPortfolio():
+    data=request.json
+
+    stockPortfolio=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
+
+    if stockPortfolio:
+        if stockPortfolio.stocks =="" and stockPortfolio.shares =="":
+            currentStocks= data['TICKER']
+            currentShares = data['SHARE']
+        else:
+            currentStocks = stockPortfolio.stocks + "," + data['TICKER']
+            currentShares = stockPortfolio.shares + "," + data['SHARE']
+    
+    stockPortfolio.stocks = currentStocks
+    stockPortfolio.shares=currentShares
+
+    db.session.commit()
+    return (jsonify(message="Stock Added"))
+
+@app.route('/api/StockPortfolio', methods =['GET'])
+@TokenRequired
+def stockPortfolioGET():
+    data=request.json
+
+    stockPortfolio=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
+
+    if stockPortfolio:
+        stockPortfolioDICT ={}
+        stockPortfolioDICT['ticker'] =stockPortfolio.stocks
+        stockPortfolioDICT['share'] = stockPortfolio.shares
+    return jsonify(stockPortfolioDICT=stockPortfolioDICT)
+
+
+
+  
+
+
 
 @app.route('/api/userdata')
 @TokenRequired
@@ -52,8 +124,17 @@ def signup():
                email=email,
                password=password
         )
+        
+
         userLog = pb.auth().sign_in_with_email_and_password(email, password)
         pb.auth().send_email_verification(userLog['idToken'])
+        newPortfolio=StockPortfolio(
+                             public_id=user.uid,
+                             stocks= "",
+                             shares=""
+                        )
+        db.session.add(newPortfolio)
+        db.session.commit()
         return {'message': f'Successfully created user {user.uid}'},200
     except:
         return {'message': 'Error creating user'},400
@@ -78,14 +159,14 @@ def token():
             return {'message':'verify email'},400         
     except:
        return {'message': 'There was an error logging in'},400
-       
+
 @app.route('/listofStocks', methods = ['GET'])
 def listofStocks ():
     f = open('sp500.json')
     data = json.load(f)
     return jsonify(data)
 
-@app.route('/marketValue',methods =['GEt'])
+@app.route('/marketValue',methods =['GET'])
 def stockValues():
     ticker =request.json['TICKER']
     startDate = request.json['START']
