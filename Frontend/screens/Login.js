@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Input, Button } from 'react-native-elements';
@@ -17,6 +17,14 @@ const Login = ({ navigation }) => {
   const getToken = () => {
     return SecureStore.getItemAsync('auth_token');
   };
+
+  useEffect(() => {
+    getToken().then((token) => {
+      if (token) {
+        navigation.navigate('Navbar');
+      }
+    });
+  }, []);
 
   const handleSignIn = async () => {
     let response;
