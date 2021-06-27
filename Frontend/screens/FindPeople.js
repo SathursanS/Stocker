@@ -4,17 +4,19 @@ import {
   Text,
   SafeAreaView,
   View,
-  ScrollView,
+  TouchableOpacity,
   FlatList,
 } from 'react-native';
 import { ListItem, Avatar, Header } from 'react-native-elements';
 import * as SecureStore from 'expo-secure-store';
 import { SearchBar, Button } from 'react-native-elements';
 import Toast from 'react-native-toast-message';
+import CustomModal from '../components/customModal/customModal';
 
 const FindPeople = () => {
   const [search, setSearch] = useState('');
   const [currentTracking, setCurrentTracking] = useState([]);
+  const [open, setOpen] = useState(true);
 
   const getToken = () => {
     return SecureStore.getItemAsync('auth_token');
@@ -142,74 +144,105 @@ const FindPeople = () => {
   const renderItem = ({ item }) => {
     let isTracking = currentTracking.includes(item.userName);
     return (
-      <View style={styles.item}>
-        <View>
-          <Text style={styles.username}>{item.userName}</Text>
-        </View>
+      <>
+        {isTracking && (
+          <TouchableOpacity style={styles.item}>
+            <View>
+              <Text style={styles.username}>{item.userName}</Text>
+            </View>
 
-        <Button
-          title={isTracking ? 'Remove' : 'Track'}
-          type={isTracking ? 'outline' : 'solid'}
-          buttonStyle={{
-            width: 90,
-            height: 30,
-            borderColor: isTracking ? '#ff6b6b' : null,
-            borderWidth: isTracking ? 1 : null,
-          }}
-          onPress={() => handleTrackOrRemove(item.userName, isTracking)}
-          titleStyle={{
-            color: isTracking ? '#ff6b6b' : 'white',
-          }}
-        />
-      </View>
+            <Button
+              title="Remove"
+              type="outline"
+              buttonStyle={{
+                width: 90,
+                height: 30,
+                borderColor: '#ff6b6b',
+                borderWidth: 1,
+              }}
+              onPress={() => handleTrackOrRemove(item.userName, isTracking)}
+              titleStyle={{
+                color: '#ff6b6b',
+              }}
+            />
+          </TouchableOpacity>
+        )}
+        {!isTracking && (
+          <View style={styles.item}>
+            <View>
+              <Text style={styles.username}>{item.userName}</Text>
+            </View>
+
+            <Button
+              title="Track"
+              type="solid"
+              buttonStyle={{
+                width: 90,
+                height: 30,
+              }}
+              onPress={() => handleTrackOrRemove(item.userName, isTracking)}
+              titleStyle={{
+                color: 'white',
+              }}
+            />
+          </View>
+        )}
+      </>
     );
   };
 
   return (
-    <View style={{ height: '100%' }}>
-      <SearchBar
-        placeholder="Search for people..."
-        onChangeText={(search) => {
-          setSearch(search);
-        }}
-        value={search}
-        containerStyle={{
-          backgroundColor: '#fff',
-          borderBottomWidth: 0,
-          elevation: 0,
-        }}
-        inputContainerStyle={{
-          height: 40,
-          borderWidth: 0,
-          backgroundColor: '#ddd',
-        }}
-        inputStyle={{ fontSize: 14 }}
-        round={true}
-      />
-      <SafeAreaView style={styles.container}>
-        {search === '' && (
-          <Text
-            style={{
-              fontSize: 18,
-              fontWeight: 'bold',
-              padding: 10,
-            }}
-          >
-            Currently Tracking:
-          </Text>
-        )}
-        {result.length === 0 && (
-          <Text style={{ fontSize: 30, padding: 10, textAlign: 'center' }}>
-            Nobody :(
-          </Text>
-        )}
-        <FlatList
-          data={result}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
+    <>
+      <CustomModal open={open} setOpen={setOpen}>
+        <View style={{ height: 100, width: 100, backgroundColor: 'white' }}>
+          <Text>Testing</Text>
+        </View>
+      </CustomModal>
+      <View style={{ height: '100%' }}>
+        <SearchBar
+          placeholder="Search for people..."
+          onChangeText={(search) => {
+            setSearch(search);
+          }}
+          value={search}
+          containerStyle={{
+            backgroundColor: '#fff',
+            borderBottomWidth: 0,
+            elevation: 0,
+          }}
+          inputContainerStyle={{
+            height: 40,
+            borderWidth: 0,
+            backgroundColor: '#ddd',
+          }}
+          inputStyle={{ fontSize: 14 }}
+          round={true}
         />
-      </SafeAreaView>
-    </View>
+        <SafeAreaView style={styles.container}>
+          {search === '' && (
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: 'bold',
+                padding: 10,
+              }}
+            >
+              Currently Tracking:
+            </Text>
+          )}
+          {result.length === 0 && (
+            <Text style={{ fontSize: 30, padding: 10, textAlign: 'center' }}>
+              Nobody :(
+            </Text>
+          )}
+          <FlatList
+            data={result}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+          />
+        </SafeAreaView>
+      </View>
+    </>
   );
 };
 
