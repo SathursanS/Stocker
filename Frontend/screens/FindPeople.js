@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   StyleSheet,
   Text,
@@ -13,8 +13,11 @@ import * as SecureStore from 'expo-secure-store';
 import { SearchBar, Button } from 'react-native-elements';
 import Toast from 'react-native-toast-message';
 import CustomModal from '../components/customModal/customModal';
+import { MainContext } from '../context/MainContext';
 
 const FindPeople = () => {
+  const context = useContext(MainContext);
+
   const [search, setSearch] = useState('');
   const [currentTracking, setCurrentTracking] = useState([]);
   const [open, setOpen] = useState(false);
@@ -54,6 +57,7 @@ const FindPeople = () => {
       json = await response.json();
 
       setCurrentTracking(json.stockPortfolioDICT.trackingArray);
+      context.updateProfileFunction();
     });
   };
 
