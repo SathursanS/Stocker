@@ -344,7 +344,6 @@ def getAllStockInfo():
         stock['value']=stockInfo.info
         ##stock['price']= stockInfo
 
-
     return jsonify(data)
 
 @app.route('/marketValue',methods =['GET'])
