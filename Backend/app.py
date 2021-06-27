@@ -358,7 +358,7 @@ def stockValues():
 
     return data
 
-@app.route('/stockInfo', methods =['GET'])
+@app.route('/stockInfo', methods =['POST'])
 def stockInfo():
     ticker = request.json['TICKER']
     stock = yf.Ticker(ticker)

@@ -6,6 +6,7 @@ import {
   View,
   TouchableOpacity,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import { ListItem, Avatar, Header } from 'react-native-elements';
 import * as SecureStore from 'expo-secure-store';
@@ -16,7 +17,16 @@ import CustomModal from '../components/customModal/customModal';
 const FindPeople = () => {
   const [search, setSearch] = useState('');
   const [currentTracking, setCurrentTracking] = useState([]);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const [portfolioName, setPortfolioName] = useState('');
+  const [portfolioData, setPortfolioData] = useState({
+    tickers: [],
+    shares: [],
+    totalCost: 0,
+    tickerInfoArray: [],
+  });
 
   const getToken = () => {
     return SecureStore.getItemAsync('auth_token');
@@ -55,6 +65,46 @@ const FindPeople = () => {
     handleFetchTracking();
   }, []);
 
+  const handlePersonPortfolio = async (item) => {
+    let totalCost = 0;
+    let tickerInfoArray = [];
+
+    setLoading(true);
+
+    getToken().then(async (token) => {
+      for (let i = 0; i < item.tickerArray.length; i++) {
+        let response;
+        let json;
+        response = await fetch('http://10.0.0.120:5000/stockInfo', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-access-tokens': token,
+          },
+          body: JSON.stringify({ TICKER: item.tickerArray[i] }),
+        });
+
+        json = await response.json();
+
+        totalCost = totalCost + json.regularMarketPrice * item.shareArray[i];
+        tickerInfoArray.push({
+          longName: json.longName,
+          sector: json.sector,
+          regularMarketPrice: json.regularMarketPrice,
+        });
+      }
+      setPortfolioName(item.userName);
+      setPortfolioData({
+        tickers: item.tickerArray,
+        shares: item.shareArray,
+        totalCost,
+        tickerInfoArray,
+      });
+      setOpen(true);
+      setLoading(false);
+    });
+  };
+
   const handleFetchPeople = async () => {
     let response;
     let json;
@@ -73,6 +123,36 @@ const FindPeople = () => {
       json = await response.json();
       setData(json.data);
     });
+  };
+
+  const renderPortfolioData = ({ item, index }) => {
+    return (
+      <ListItem bottomDivider>
+        <ListItem.Content>
+          <ListItem.Title>{item}</ListItem.Title>
+          <ListItem.Subtitle>
+            {portfolioData.tickerInfoArray[index].longName}
+          </ListItem.Subtitle>
+        </ListItem.Content>
+        <ListItem.Content style={{ justifyContent: 'center' }}>
+          <ListItem.Title>
+            {portfolioData.tickerInfoArray[index].sector}
+          </ListItem.Title>
+        </ListItem.Content>
+        <ListItem.Content
+          style={{ flexDirection: 'row', justifyContent: 'flex-end' }}
+        >
+          <ListItem.Title>
+            {`${(
+              ((portfolioData.tickerInfoArray[index].regularMarketPrice *
+                portfolioData.shares[index]) /
+                portfolioData.totalCost) *
+              100
+            ).toFixed(2)}%`}
+          </ListItem.Title>
+        </ListItem.Content>
+      </ListItem>
+    );
   };
 
   const handleTrackOrRemove = async (username, tracking) => {
@@ -121,7 +201,6 @@ const FindPeople = () => {
         json.message === 'You have unfollowed' ||
         json.message === 'Tracking!'
       ) {
-        //REFETCH DATA
         handleFetchTracking();
       }
     });
@@ -146,9 +225,13 @@ const FindPeople = () => {
     return (
       <>
         {isTracking && (
-          <TouchableOpacity style={styles.item}>
+          <TouchableOpacity
+            onPress={() => handlePersonPortfolio(item)}
+            style={styles.item}
+          >
             <View>
-              <Text style={styles.username}>{item.userName}</Text>
+              {loading && <ActivityIndicator size="large" color="#0066CC" />}
+              {!loading && <Text style={styles.username}>{item.userName}</Text>}
             </View>
 
             <Button
@@ -170,7 +253,8 @@ const FindPeople = () => {
         {!isTracking && (
           <View style={styles.item}>
             <View>
-              <Text style={styles.username}>{item.userName}</Text>
+              {loading && <ActivityIndicator size="large" color="#0066CC" />}
+              {!loading && <Text style={styles.username}>{item.userName}</Text>}
             </View>
 
             <Button
@@ -194,8 +278,15 @@ const FindPeople = () => {
   return (
     <>
       <CustomModal open={open} setOpen={setOpen}>
-        <View style={{ height: 100, width: 100, backgroundColor: 'white' }}>
-          <Text>Testing</Text>
+        <View style={{ backgroundColor: 'white', width: '100%' }}>
+          <Text
+            style={{ fontSize: 18, fontWeight: 'bold', textAlign: 'center' }}
+          >{`${portfolioName}'s Portfolio`}</Text>
+          <FlatList
+            data={portfolioData.tickers}
+            renderItem={renderPortfolioData}
+            keyExtractor={(item) => item.id}
+          />
         </View>
       </CustomModal>
       <View style={{ height: '100%' }}>
