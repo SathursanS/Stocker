@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,14 +7,16 @@ import {
   ScrollView,
   Image,
   FlatList,
-} from "react-native";
-import { Button } from "react-native-elements";
-import * as SecureStore from "expo-secure-store";
-import { ListItem } from "react-native-elements";
+} from 'react-native';
+import { Button, Header } from 'react-native-elements';
+import * as SecureStore from 'expo-secure-store';
+import { ListItem } from 'react-native-elements';
+import { MainContext } from '../context/MainContext';
 
-const Profile = () => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
+const Profile = ({ navigation }) => {
+  const context = useContext(MainContext);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [trackers, setTrackers] = useState(0);
   const [tracking, setTracking] = useState(0);
   const [trackerList, setTrackersList] = useState([]);
@@ -29,7 +31,7 @@ const Profile = () => {
   });
 
   const getToken = () => {
-    return SecureStore.getItemAsync("auth_token");
+    return SecureStore.getItemAsync('auth_token');
   };
 
   const fetchEmail = async () => {
@@ -37,16 +39,18 @@ const Profile = () => {
     let json;
 
     getToken().then(async (token) => {
-      response = await fetch("http://192.168.2.191:5000/api/userdata", {
-        method: "GET",
+      response = await fetch('http://10.0.0.120:5000/api/userdata', {
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
-          "x-access-tokens": token,
+          'Content-Type': 'application/json',
+          'x-access-tokens': token,
         },
       });
 
       json = await response.json();
       setEmail(json.data.firebase.identities.email[0]);
+
+      fetchStockPortfolio();
     });
   };
 
@@ -55,10 +59,10 @@ const Profile = () => {
     let json;
 
     getToken().then(async (token) => {
-      response = await fetch("http://192.168.2.191:5000/api/StockPortfolio", {
-        method: "GET",
+      response = await fetch('http://10.0.0.120:5000/api/StockPortfolio', {
+        method: 'GET',
         headers: {
-          "x-access-tokens": token,
+          'x-access-tokens': token,
         },
       });
 
@@ -74,30 +78,33 @@ const Profile = () => {
       setTracking(trackingList.length);
       setUsername(json.stockPortfolioDICT.userName);
 
-      if (trackerList.length === 1 && trackerList[0] === "") {
+      if (trackerList.length === 1 && trackerList[0] === '') {
         setTrackers(0);
       }
 
-      if (trackingList.length === 1 && trackingList[0] === "") {
+      if (trackingList.length === 1 && trackingList[0] === '') {
         setTracking(0);
       }
+
+      fetchUserPortfolio();
     });
   };
 
   const fetchUserPortfolio = async () => {
     let totalCost = 0;
     let tickerInfoArray = [];
+    console.log('fetching user profile');
 
     getToken().then(async (token) => {
       for (let i = 0; i < tickerList.length; i++) {
         let response;
         let json;
 
-        response = await fetch("http://192.168.2.191:5000/stockInfo", {
-          method: "POST",
+        response = await fetch('http://10.0.0.120:5000/stockInfo', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            "x-access-tokens": token,
+            'Content-Type': 'application/json',
+            'x-access-tokens': token,
           },
           body: JSON.stringify({ TICKER: tickerList[i] }),
         });
@@ -123,15 +130,7 @@ const Profile = () => {
 
   useEffect(() => {
     fetchEmail();
-  }, []);
-
-  useEffect(() => {
-    fetchStockPortfolio();
-  }, []);
-
-  useEffect(() => {
-    fetchUserPortfolio();
-  }, []);
+  }, [context.updateProfile]);
 
   const renderPortfolioData = ({ item, index }) => {
     return (
@@ -142,11 +141,11 @@ const Profile = () => {
             {portfolioData.tickerInfoArray[index].longName}
           </ListItem.Subtitle>
         </ListItem.Content>
-        <ListItem.Content style={{ justifyContent: "center" }}>
+        <ListItem.Content style={{ justifyContent: 'center' }}>
           <ListItem.Title>{portfolioData.shares[index]} shares</ListItem.Title>
         </ListItem.Content>
         <ListItem.Content
-          style={{ flexDirection: "row", justifyContent: "flex-end" }}
+          style={{ flexDirection: 'row', justifyContent: 'flex-end' }}
         >
           <ListItem.Title>
             {`${(
@@ -163,11 +162,20 @@ const Profile = () => {
 
   return (
     <SafeAreaView>
+      <Header
+        centerComponent={{
+          text: 'Profile',
+          style: { color: '#fff', fontWeight: 'bold', fontSize: 20 },
+        }}
+        containerStyle={{
+          backgroundColor: '#1e88e5',
+        }}
+      />
       <ScrollView>
         <View style={styles.profileContainer}>
           <View style={styles.profileImage}>
             <Image
-              source={require("../assets/smiley.jpg")}
+              source={require('../assets/smiley.jpg')}
               style={styles.image}
               resizeMode="center"
             />
@@ -183,7 +191,7 @@ const Profile = () => {
             style={[
               styles.statsBox,
               {
-                borderColor: "#e0e0e0",
+                borderColor: '#e0e0e0',
                 borderRightWidth: 1.2,
               },
             ]}
@@ -199,7 +207,8 @@ const Profile = () => {
         <Button
           title="Find People"
           type="outline"
-          containerStyle={{ margin: 20 }}
+          containerStyle={{ margin: 25 }}
+          onPress={() => navigation.navigate('Find People')}
         />
 
         <Text style={styles.sectionHeading}>My Portfolio</Text>
@@ -219,24 +228,23 @@ const Profile = () => {
 const styles = StyleSheet.create({
   profileContainer: {
     margin: 20,
-    marginTop: 50,
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   infoContainer: {
     marginLeft: 20,
   },
   username: {
-    color: "#52575D",
-    fontWeight: "200",
+    color: '#52575D',
+    fontWeight: '200',
     fontSize: 20,
   },
   email: {
-    color: "#AEB5BC",
+    color: '#AEB5BC',
     fontSize: 14,
   },
   sectionHeading: {
-    color: "#ffa726",
+    color: '#ffa726',
     fontSize: 18,
     margin: 10,
     marginLeft: 20,
@@ -247,28 +255,28 @@ const styles = StyleSheet.create({
     width: undefined,
   },
   number: {
-    color: "#52575D",
+    color: '#52575D',
     fontSize: 22,
   },
   subText: {
     fontSize: 15,
-    color: "#AEB5BC",
-    fontWeight: "500",
+    color: '#AEB5BC',
+    fontWeight: '500',
   },
   profileImage: {
     width: 80,
     height: 80,
     borderRadius: 100,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   statsContainer: {
-    flexDirection: "row",
-    alignSelf: "center",
+    flexDirection: 'row',
+    alignSelf: 'center',
     margin: 20,
   },
   statsBox: {
     padding: 10,
-    alignItems: "center",
+    alignItems: 'center',
     flex: 1,
   },
   stockContainer: {
