@@ -6,12 +6,11 @@ import {
   SafeAreaView,
   ScrollView,
   Image,
-  StatusBar,
   TouchableOpacity,
   Linking,
   ActivityIndicator,
 } from 'react-native';
-import { Card, ListItem, Button, Icon } from 'react-native-elements';
+import { Card, ListItem, Button, Icon, Header } from 'react-native-elements';
 import Toast from 'react-native-toast-message';
 import * as SecureStore from 'expo-secure-store';
 import { MainContext } from '../context/MainContext';
@@ -57,6 +56,15 @@ const News = () => {
 
   return (
     <SafeAreaView style={styles.safeContainer}>
+      <Header
+        centerComponent={{
+          text: 'News',
+          style: { color: '#fff', fontWeight: 'bold', fontSize: 20 },
+        }}
+        containerStyle={{
+          backgroundColor: '#1e88e5',
+        }}
+      />
       {loading && <ActivityIndicator size="large" color="#0066CC" />}
       <ScrollView style={styles.scrollContainer}>
         {newsList.length === 0 && !loading && (
@@ -123,7 +131,6 @@ const News = () => {
 
 const styles = StyleSheet.create({
   safeContainer: {
-    marginTop: StatusBar.currentHeight,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',

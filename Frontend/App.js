@@ -8,6 +8,7 @@ import Navbar from './components/navbar/navbar';
 import Toast from 'react-native-toast-message';
 import Login from './screens/Login';
 import SignUp from './screens/SignUp';
+import FindPeople from './screens/FindPeople';
 
 const Stack = createStackNavigator();
 
@@ -27,6 +28,10 @@ export default function App() {
             component={Login}
           ></Stack.Screen>
           <Stack.Screen name="Signup" component={SignUp}></Stack.Screen>
+          <Stack.Screen
+            name="Find People"
+            component={FindPeople}
+          ></Stack.Screen>
           <Stack.Screen
             options={{ headerShown: false }}
             name="Navbar"

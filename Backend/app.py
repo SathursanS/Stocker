@@ -46,7 +46,7 @@ pb = pyrebase.initialize_app(json.load(open('config.json')))
 class StockPortfolio(db.Model):
     id=Column(Integer, primary_key=True)
     public_id=Column(String(), unique=True)
-    name = Column(String())
+    name = Column(String(), unique=True)
     stocks=Column(String())
     shares=Column(String())
     tracking= Column(String())
@@ -90,11 +90,12 @@ def getAll():
             trackersArrays=[]
             trackingArray = stockPortfolioDICT['tracking'].split(',')
             trackingArrays =[]
-            print(tickerArray)
             for i in range(len(tickerArray)):
                 tickerArrays.append(tickerArray[i])
                 shareArrays.append(shareArray[i])
+            for i in range(len(trackersArray)):
                 trackersArrays.append(trackersArray[i])
+            for i in range(len(trackingArray)):
                 trackingArrays.append(trackingArray[i])
 
             stockPortfolioDICT['shareArray']= shareArrays
@@ -121,7 +122,7 @@ def unfollow ():
                     tracking.remove(request.json['userName'])
                     break
             currentTracking = ",".join(tracking)
-            user.trackers=currentTracking    
+            user.tracking=currentTracking    
     if (other):
         if other.trackers == "":
             return {"message": "You do not have any followers"}
@@ -172,7 +173,6 @@ def stockPortfolioDEL():
     data=request.json
 
     stockPortfolio=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
-    print()
     if stockPortfolio:
         if stockPortfolio.stocks == "" and stockPortfolio.shares =="":
             return {'message': 'You do not have stocks to sell'},400
@@ -216,8 +216,6 @@ def stockPortfolio():
         else:
             tickerArray = stockPortfolio.stocks.split(',')
             shareArray = stockPortfolio.shares.split(',')
-            print(tickerArray)
-            print(shareArray)
             if(data['TICKER'] in tickerArray):
                 for j in range(len(tickerArray)):
                     if(data['TICKER'] == tickerArray[j]):
@@ -258,11 +256,12 @@ def stockPortfolioGET():
     trackersArrays=[]
     trackingArray = stockPortfolioDICT['tracking'].split(',')
     trackingArrays =[]
-    print(tickerArray)
     for i in range(len(tickerArray)):
         tickerArrays.append(tickerArray[i])
         shareArrays.append(shareArray[i])
+    for i in range(len(trackersArray)):
         trackersArrays.append(trackersArray[i])
+    for i in range(len(trackingArray)):
         trackingArrays.append(trackingArray[i])
 
     stockPortfolioDICT['shareArray']= shareArrays
@@ -292,7 +291,6 @@ def signup():
                password=password
         )
         
-        print(request)
         userLog = pb.auth().sign_in_with_email_and_password(email, password)
         pb.auth().send_email_verification(userLog['idToken'])
         newPortfolio=StockPortfolio(
