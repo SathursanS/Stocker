@@ -53,6 +53,8 @@ const Profile = ({ navigation }) => {
 
       json = await response.json();
       setEmail(json.data.firebase.identities.email[0]);
+
+      fetchStockPortfolio();
     });
   };
 
@@ -87,12 +89,15 @@ const Profile = ({ navigation }) => {
       if (trackingList.length === 1 && trackingList[0] === "") {
         setTracking(0);
       }
+
+      fetchUserPortfolio();
     });
   };
 
   const fetchUserPortfolio = async () => {
     let totalCost = 0;
     let tickerInfoArray = [];
+    console.log('fetching user profile');
 
     getToken().then(async (token) => {
       for (let i = 0; i < tickerList.length; i++) {
@@ -129,8 +134,6 @@ const Profile = ({ navigation }) => {
 
   useEffect(() => {
     fetchEmail();
-    fetchStockPortfolio();
-    fetchUserPortfolio();
   }, [context.updateProfile]);
 
   const renderPortfolioData = ({ item, index }) => {
@@ -142,8 +145,8 @@ const Profile = ({ navigation }) => {
             {portfolioData.tickerInfoArray[index].longName}
           </ListItem.Subtitle>
         </ListItem.Content>
-        <ListItem.Content style={{ justifyContent: "center" }}>
-          <ListItem.Title>{portfolioData.shares} shares</ListItem.Title>
+        <ListItem.Content style={{ justifyContent: 'center' }}>
+          <ListItem.Title>{portfolioData.shares[index]} shares</ListItem.Title>
         </ListItem.Content>
         <ListItem.Content
           style={{ flexDirection: "row", justifyContent: "flex-end" }}
