@@ -1,4 +1,4 @@
-  from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify
 from firebase_admin import credentials, firestore, initialize_app, auth 
 from flask_jsonpify import jsonpify
 from datetime import datetime
