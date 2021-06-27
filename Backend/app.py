@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+  from flask import Flask, request, jsonify
 from firebase_admin import credentials, firestore, initialize_app, auth 
 from flask_jsonpify import jsonpify
 from datetime import datetime
@@ -331,8 +331,19 @@ def token():
 
 @app.route('/listofStocks', methods = ['GET'])
 def listofStocks ():
+    f = open('response.json')
+    data = json.load(f)
+    return jsonify(data)
+
+@app.route('/allStockInfo', methods =['GET'])
+def getAllStockInfo():
     f = open('sp500.json')
     data = json.load(f)
+    for stock in data:
+        stockInfo = yf.Ticker(stock['Symbol'])
+        stock['value']=stockInfo.info
+        ##stock['price']= stockInfo
+
     return jsonify(data)
 
 @app.route('/marketValue',methods =['GET'])
