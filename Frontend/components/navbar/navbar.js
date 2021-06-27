@@ -5,6 +5,7 @@ import News from '../../screens/News';
 import Stocks from '../../screens/Stocks';
 import Profile from '../../screens/Profile';
 import CustomTabBar from './customTabBar';
+import FindPeople from '../../screens/FindPeople';
 
 const Tab = createBottomTabNavigator();
 
@@ -23,7 +24,7 @@ const Navbar = () => {
       />
       <Tab.Screen
         name="Profile"
-        component={Profile}
+        component={FindPeople}
         initialParams={{ icon: 'account-outline' }}
       />
     </Tab.Navigator>
