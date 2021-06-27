@@ -1,7 +1,7 @@
 # Stocker
 2021 EngHack <br>
-A Social Media Stock Platform 
-Moderninzing the way Stocks are being discussed. <br>
+A Social Media Stock Platfom. <br>
+Modernize the way Stocks are being discussed. <br>
 Devpost: https://devpost.com/software/stocker-shvkae
 <h3>Inspiration</h3>
 Over the course of the past year, many of us heard a lot about the stock market and have started investing (GME to the moon 🚀). As such there has been a lot of discussions regarding the stock market through various platforms such as Reddit, Instagram and many others. However, there does not seem to exist a social platform for the sole purpose of stocks and stock related discussions. As a result, we wanted to develop a centralized social media platform that enables individuals to showcase their stock portfolios as well as track other portfolios they may be interested in! With the understanding that many of us prefer viewing stocks on our mobile devices, we built a user-friendly app to help display stock portfolios as well as to help create a social network between stock enthusiasts.
