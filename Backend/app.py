@@ -94,6 +94,7 @@ def getAll():
             for i in range(len(tickerArray)):
                 tickerArrays.append(tickerArray[i])
                 shareArrays.append(shareArray[i])
+            
                 trackersArrays.append(trackersArray[i])
                 trackingArrays.append(trackingArray[i])
 
@@ -333,7 +334,7 @@ def token():
 
 @app.route('/listofStocks', methods = ['GET'])
 def listofStocks ():
-    f = open('sp500.json')
+    f = open('response.json')
     data = json.load(f)
     return jsonify(data)
 
