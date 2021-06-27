@@ -4,12 +4,7 @@ import { Text, View, Modal, StyleSheet, TouchableOpacity } from 'react-native';
 const CustomModal = ({ children, open, setOpen }) => {
   return (
     <>
-      <Modal
-        animationType={'fade'}
-        transparent={true}
-        visible={open}
-        onRequestClose={() => setOpen(false)}
-      >
+      <Modal animationType={'fade'} transparent={true} visible={open}>
         <View style={styles.modalOverlay}></View>
       </Modal>
       <Modal animationType={'slide'} transparent={true} visible={open}>
