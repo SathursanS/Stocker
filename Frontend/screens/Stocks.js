@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   StyleSheet,
   Text,
@@ -13,8 +13,10 @@ import { SearchBar } from 'react-native-elements';
 import CustomModal from '../components/customModal/customModal';
 import * as SecureStore from 'expo-secure-store';
 import { Directions } from 'react-native-gesture-handler';
+import { MainContext } from '../context/MainContext';
 
 const Stocks = () => {
+  const context = useContext(MainContext);
   const [original, setOriginal] = useState([]);
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
@@ -44,7 +46,6 @@ const Stocks = () => {
     });
 
     let json = await response.json();
-    //console.log(json);
     setOriginal(json);
     setData(json);
   };
@@ -88,7 +89,8 @@ const Stocks = () => {
       json = await response.json();
 
       fetchUserStocks();
-      console.log(json);
+      context.updateNewsFunction();
+      context.updateProfileFunction();
     });
   };
 
@@ -111,7 +113,8 @@ const Stocks = () => {
       json = await response.json();
 
       fetchUserStocks();
-      console.log(json);
+      context.updateNewsFunction();
+      context.updateProfileFunction();
     });
   };
 
@@ -122,7 +125,6 @@ const Stocks = () => {
 
   const onSearch = (search) => {
     setSearch(search);
-    console.log(search);
     if (search === '') {
       setData(original);
     } else {
@@ -137,7 +139,6 @@ const Stocks = () => {
   };
 
   const fetchMore = () => {
-    console.log('Work Plz');
     setResult([...result, ...data.slice(10 + 10 * page, 20 + 10 * page)]);
     setPage(page + 1);
   };
