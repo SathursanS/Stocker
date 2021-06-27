@@ -46,7 +46,7 @@ pb = pyrebase.initialize_app(json.load(open('config.json')))
 class StockPortfolio(db.Model):
     id=Column(Integer, primary_key=True)
     public_id=Column(String(), unique=True)
-    name = Column(String())
+    name = Column(String(), unique=True)
     stocks=Column(String())
     shares=Column(String())
     tracking= Column(String())
@@ -66,6 +66,7 @@ def TokenRequired(f):
             return {'message':'Invalid token provided.'},400
         return f(*args, **kwargs)
     return wrap
+
 @app.route('/api/getAllPortfolio')
 @TokenRequired
 def getAll():
@@ -89,11 +90,12 @@ def getAll():
             trackersArrays=[]
             trackingArray = stockPortfolioDICT['tracking'].split(',')
             trackingArrays =[]
-            print(tickerArray)
             for i in range(len(tickerArray)):
                 tickerArrays.append(tickerArray[i])
                 shareArrays.append(shareArray[i])
+            for i in range(len(trackersArray)):
                 trackersArrays.append(trackersArray[i])
+            for i in range(len(trackingArray)):
                 trackingArrays.append(trackingArray[i])
 
             stockPortfolioDICT['shareArray']= shareArrays
@@ -104,8 +106,39 @@ def getAll():
             stockPortfolioDICT['userName'] = portfolio.name
             output.append(stockPortfolioDICT)
     return jsonify(data=output)
+@app.route('/api/unfollow', methods =['DELETE'])
+@TokenRequired
+def unfollow ():
+    user=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
+    other= StockPortfolio.query.filter_by(name= request.json['userName']).first()
 
-@app.route('/api/follow')
+    if(user):
+        if user.tracking =="":
+            return {"message": "You do not track anyone"}
+        else: 
+            tracking = user.tracking.split(',')
+            for users in tracking:
+                if(users == request.json['userName']):
+                    tracking.remove(request.json['userName'])
+                    break
+            currentTracking = ",".join(tracking)
+            user.tracking=currentTracking    
+    if (other):
+        if other.trackers == "":
+            return {"message": "You do not have any followers"}
+        else:
+            trackers = other.trackers.split(',')
+            for users in trackers:
+                if(users ==  user.name):
+                    trackers.remove(user.name)
+                    break
+            currentTrackers = ",".join(trackers)
+            other.trackers=currentTrackers     
+    db.session.commit()
+    return {"message": "You have unfollowed"}
+
+            
+@app.route('/api/follow', methods =['POST'])
 @TokenRequired
 def follow():
     userWhoIsFollowing=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
@@ -140,7 +173,6 @@ def stockPortfolioDEL():
     data=request.json
 
     stockPortfolio=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
-    print()
     if stockPortfolio:
         if stockPortfolio.stocks == "" and stockPortfolio.shares =="":
             return {'message': 'You do not have stocks to sell'},400
@@ -184,8 +216,6 @@ def stockPortfolio():
         else:
             tickerArray = stockPortfolio.stocks.split(',')
             shareArray = stockPortfolio.shares.split(',')
-            print(tickerArray)
-            print(shareArray)
             if(data['TICKER'] in tickerArray):
                 for j in range(len(tickerArray)):
                     if(data['TICKER'] == tickerArray[j]):
@@ -208,8 +238,6 @@ def stockPortfolio():
 @app.route('/api/StockPortfolio', methods =['GET'])
 @TokenRequired
 def stockPortfolioGET():
-    data=request.json
-
     stockPortfolio=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
 
     if stockPortfolio:
@@ -228,11 +256,12 @@ def stockPortfolioGET():
     trackersArrays=[]
     trackingArray = stockPortfolioDICT['tracking'].split(',')
     trackingArrays =[]
-    print(tickerArray)
     for i in range(len(tickerArray)):
         tickerArrays.append(tickerArray[i])
         shareArrays.append(shareArray[i])
+    for i in range(len(trackersArray)):
         trackersArrays.append(trackersArray[i])
+    for i in range(len(trackingArray)):
         trackingArrays.append(trackingArray[i])
 
     stockPortfolioDICT['shareArray']= shareArrays
@@ -262,7 +291,6 @@ def signup():
                password=password
         )
         
-        print(request)
         userLog = pb.auth().sign_in_with_email_and_password(email, password)
         pb.auth().send_email_verification(userLog['idToken'])
         newPortfolio=StockPortfolio(
@@ -303,8 +331,19 @@ def token():
 
 @app.route('/listofStocks', methods = ['GET'])
 def listofStocks ():
+    f = open('response.json')
+    data = json.load(f)
+    return jsonify(data)
+
+@app.route('/allStockInfo', methods =['GET'])
+def getAllStockInfo():
     f = open('sp500.json')
     data = json.load(f)
+    for stock in data:
+        stockInfo = yf.Ticker(stock['Symbol'])
+        stock['value']=stockInfo.info
+        ##stock['price']= stockInfo
+
     return jsonify(data)
 
 @app.route('/marketValue',methods =['GET'])
@@ -319,39 +358,43 @@ def stockValues():
 
     return data
 
-@app.route('/stockInfo', methods =['GET'])
+@app.route('/stockInfo', methods =['POST'])
 def stockInfo():
     ticker = request.json['TICKER']
     stock = yf.Ticker(ticker)
     return stock.info
 
 @app.route('/newsFeed', methods =['POST'])
+@TokenRequired
 def newsFeed():
     newsapi = NewsApiClient(api_key='f84069d717b3400aa52221602a964b8d')
 
-    #CODE TO GET ARRAY STRING FROM DATABASE
-    tickerList = "AAPL,MSFT"
-    ########################################
+    stockPortfolio=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
+    tickerList = stockPortfolio.stocks
 
     tickerArray = tickerList.split(',')
     
     tickerQuery = ""
     for ticker in tickerArray:
         stock = yf.Ticker(ticker)
-        if (len(tickerQuery) > 0):
-            tickerQuery = tickerQuery + " OR " + stock.info["longName"]
-        else:
-            tickerQuery = tickerQuery + stock.info["longName"]
+        if (ticker != ''):
+            if (len(tickerQuery) > 0):
+                tickerQuery = tickerQuery + " OR " + stock.info["longName"]
+            else:
+                tickerQuery = tickerQuery + stock.info["longName"]
     
 
-    all_articles = newsapi.get_everything(q=tickerQuery,
-                                         to=datetime.today().strftime('%Y-%m-%d'),
-                                        language='en',
-                                        sort_by='relevancy',
-                                        page_size=20,
-                                        page=request.json['page'])
-                                        
-    return all_articles
+    if (tickerQuery != ''):
+        all_articles = newsapi.get_everything(q=tickerQuery,
+                                            to=datetime.today().strftime('%Y-%m-%d'),
+                                            language='en',
+                                            sort_by='relevancy',
+                                            page_size=20,
+                                            page=request.json['page'])
+
+        return all_articles
+
+    return { "articles": [] }
 
 if __name__ == "__main__":
     app.run(debug=True)

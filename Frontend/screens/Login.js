@@ -65,7 +65,7 @@ const Login = ({ navigation }) => {
         <View style={[styles.action, { marginBottom: 20 }]}>
           <Feather
             style={{ paddingBottom: 10, color: '#1e88e5' }}
-            name="user"
+            name="mail"
             color="#05375a"
             size={20}
           />

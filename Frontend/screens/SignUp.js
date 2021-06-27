@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import { StyleSheet, View, Text, TextInput } from "react-native";
-import { Button } from "react-native-elements";
-import Feather from "react-native-vector-icons/Feather";
-import Toast from "react-native-toast-message";
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, TextInput } from 'react-native';
+import { Button } from 'react-native-elements';
+import Feather from 'react-native-vector-icons/Feather';
+import Toast from 'react-native-toast-message';
 
-const SignUp = () => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+const SignUp = ({ navigation }) => {
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleSignUp = async () => {
     let response;
@@ -16,41 +16,42 @@ const SignUp = () => {
 
     if (confirmPassword !== password) {
       Toast.show({
-        text1: "Error",
-        text2: "Passwords do not match!",
-        type: "error",
+        text1: 'Error',
+        text2: 'Passwords do not match!',
+        type: 'error',
       });
       return;
     }
 
-    response = await fetch("http://192.168.2.191:5000/api/signup", {
-      method: "POST",
+    response = await fetch('http://10.0.0.120:5000/api/signup', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({ email, password, userName: username }),
     });
 
     json = await response.json();
 
-    if (json.message === "Successfully created user") {
+    if (json.message === 'Successfully created user') {
       Toast.show({
-        text1: "Success",
+        text1: 'Success',
         text2: "Hooray, you're signed up! Please verify the email sent to you.",
-        type: "success",
+        type: 'success',
       });
-    } else if (json.message === "Error missing email or password") {
+      navigation.navigate('Login');
+    } else if (json.message === 'Error missing email or password') {
       Toast.show({
-        text1: "Error",
-        text2: "Please enter an email and password.",
-        type: "error",
+        text1: 'Error',
+        text2: 'Please enter an email and password.',
+        type: 'error',
       });
-    } else if (json.message === "Error creating user") {
+    } else if (json.message === 'Error creating user') {
       Toast.show({
-        text1: "Error",
+        text1: 'Error',
         text2:
-          "This email or username has already been used. Please try again.",
-        type: "error",
+          'This email or username has already been used. Please try again.',
+        type: 'error',
       });
     }
   };
@@ -62,7 +63,7 @@ const SignUp = () => {
       <View style={styles.inputContainer}>
         <View style={[styles.action, { marginBottom: 20 }]}>
           <Feather
-            style={{ paddingBottom: 10, color: "#1e88e5" }}
+            style={{ paddingBottom: 10, color: '#1e88e5' }}
             name="user"
             color="#05375a"
             size={20}
@@ -77,7 +78,7 @@ const SignUp = () => {
 
         <View style={[styles.action, { marginBottom: 20 }]}>
           <Feather
-            style={{ paddingBottom: 10, color: "#1e88e5" }}
+            style={{ paddingBottom: 10, color: '#1e88e5' }}
             name="mail"
             color="#05375a"
             size={20}
@@ -92,7 +93,7 @@ const SignUp = () => {
 
         <View style={[styles.action, { marginBottom: 20 }]}>
           <Feather
-            style={{ paddingBottom: 10, color: "#1e88e5" }}
+            style={{ paddingBottom: 10, color: '#1e88e5' }}
             name="lock"
             color="#05375a"
             size={20}
@@ -108,7 +109,7 @@ const SignUp = () => {
 
         <View style={styles.action}>
           <Feather
-            style={{ paddingBottom: 10, color: "#1e88e5" }}
+            style={{ paddingBottom: 10, color: '#1e88e5' }}
             name="lock"
             color="#05375a"
             size={20}
@@ -135,38 +136,38 @@ const SignUp = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
   },
   header: {
     fontSize: 30,
-    color: "#1e88e5",
+    color: '#1e88e5',
     padding: 10,
     margin: 20,
   },
   inputContainer: {
-    width: "75%",
+    width: '75%',
   },
   createAccountContainer: {
     marginTop: 20,
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   action: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginTop: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#f2f2f2",
+    borderBottomColor: '#f2f2f2',
   },
   textInput: {
     flex: 1,
-    marginTop: Platform.OS === "ios" ? 0 : -12,
+    marginTop: Platform.OS === 'ios' ? 0 : -12,
     paddingLeft: 10,
-    color: "#05375a",
+    color: '#05375a',
     fontSize: 16,
   },
 });
