@@ -355,6 +355,19 @@ def stockInfo():
     stock = yf.Ticker(ticker)
     return stock.info
 
+@app.route('/allStockInfo', methods =['GET'])
+def getAllStockInfo():
+    f = open('sp500.json')
+    data = json.load(f)
+    for stock in data:
+        stockInfo = yf.Ticker(stock['Symbol'])
+        stock['value']=stockInfo.info
+        ##stock['price']= stockInfo
+     
+
+    return jsonify(data)
+    
+
 @app.route('/newsFeed', methods =['POST'])
 def newsFeed():
     newsapi = NewsApiClient(api_key='f84069d717b3400aa52221602a964b8d')
