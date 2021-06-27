@@ -156,20 +156,20 @@ const Stocks = () => {
             <Icon
             name='plus-circle-outline'
             type='material-community'
-            color='#07ad47'
+            color='#66bb6a'
             size={35}
             onPress={() => toggleOverlay(item, true)} />
           :<>
             <Icon
               name='plus-circle-outline'
               type='material-community'
-              color='#07ad47'
+              color='#66bb6a'
               size={35}
               onPress={() => toggleOverlay(item, true)} />
             <Icon
               name='close-circle-outline'
               type='material-community'
-              color='#ba2b39'
+              color='#ef5350'
               size={35}
               onPress={() => toggleOverlay(item, false)} />
           </>}
