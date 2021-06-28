@@ -47,7 +47,7 @@ const FindPeople = () => {
     getToken().then(async (token) => {
       authToken = token;
 
-      response = await fetch('http://10.0.0.120:5000/api/StockPortfolio', {
+      response = await fetch('http://localhost:5000/api/StockPortfolio', {
         method: 'GET',
         headers: {
           'x-access-tokens': authToken,
@@ -79,7 +79,7 @@ const FindPeople = () => {
       for (let i = 0; i < item.tickerArray.length; i++) {
         let response;
         let json;
-        response = await fetch('http://10.0.0.120:5000/stockInfo', {
+        response = await fetch('http://localhost:5000/stockInfo', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ const FindPeople = () => {
     getToken().then(async (token) => {
       authToken = token;
 
-      response = await fetch('http://10.0.0.120:5000/api/getAllPortfolio', {
+      response = await fetch('http://localhost:5000/api/getAllPortfolio', {
         method: 'GET',
         headers: {
           'x-access-tokens': authToken,
@@ -168,7 +168,7 @@ const FindPeople = () => {
       authToken = token;
 
       if (tracking) {
-        response = await fetch('http://10.0.0.120:5000/api/unfollow', {
+        response = await fetch('http://localhost:5000/api/unfollow', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -177,7 +177,7 @@ const FindPeople = () => {
           body: JSON.stringify({ userName: username }),
         });
       } else {
-        response = await fetch('http://10.0.0.120:5000/api/follow', {
+        response = await fetch('http://localhost:5000/api/follow', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

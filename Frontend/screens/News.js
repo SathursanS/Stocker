@@ -34,7 +34,7 @@ const News = () => {
     getToken().then(async (token) => {
       authToken = token;
 
-      response = await fetch('http://10.0.0.120:5000/newsFeed', {
+      response = await fetch('http://localhost:5000/newsFeed', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -30,7 +30,7 @@ const Login = ({ navigation }) => {
     let response;
     let json;
 
-    response = await fetch('http://10.0.0.120:5000/api/login', {
+    response = await fetch('http://localhost:5000/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -41,7 +41,7 @@ const Stocks = () => {
   };
 
   const fetchStock = async () => {
-    let response = await fetch('http://10.0.0.120:5000/listofStocks', {
+    let response = await fetch('http://localhost:5000/listofStocks', {
       method: 'GET',
     });
 
@@ -57,7 +57,7 @@ const Stocks = () => {
 
     getToken().then(async (token) => {
       authToken = token;
-      response = await fetch('http://10.0.0.120:5000/api/StockPortfolio', {
+      response = await fetch('http://localhost:5000/api/StockPortfolio', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ const Stocks = () => {
     let authToken;
     getToken().then(async (token) => {
       authToken = token;
-      response = await fetch('http://10.0.0.120:5000/api/StockPortfolio', {
+      response = await fetch('http://localhost:5000/api/StockPortfolio', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ const Stocks = () => {
 
     getToken().then(async (token) => {
       authToken = token;
-      response = await fetch('http://10.0.0.120:5000/api/StockPortfolio', {
+      response = await fetch('http://localhost:5000/api/StockPortfolio', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

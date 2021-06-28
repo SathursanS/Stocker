@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,16 +7,16 @@ import {
   ScrollView,
   Image,
   FlatList,
-} from "react-native";
-import { Button, Header } from "react-native-elements";
-import * as SecureStore from "expo-secure-store";
-import { ListItem } from "react-native-elements";
-import { MainContext } from "../context/MainContext";
+} from 'react-native';
+import { Button, Header } from 'react-native-elements';
+import * as SecureStore from 'expo-secure-store';
+import { ListItem } from 'react-native-elements';
+import { MainContext } from '../context/MainContext';
 
 const Profile = ({ navigation }) => {
   const context = useContext(MainContext);
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [trackers, setTrackers] = useState(0);
   const [tracking, setTracking] = useState(0);
   const [trackerList, setTrackersList] = useState([]);
@@ -31,11 +31,11 @@ const Profile = ({ navigation }) => {
   });
 
   const getToken = () => {
-    return SecureStore.getItemAsync("auth_token");
+    return SecureStore.getItemAsync('auth_token');
   };
 
   const removeToken = () => {
-    return SecureStore.deleteItemAsync("auth_token");
+    return SecureStore.deleteItemAsync('auth_token');
   };
 
   const fetchEmail = async () => {
@@ -43,11 +43,11 @@ const Profile = ({ navigation }) => {
     let json;
 
     getToken().then(async (token) => {
-      response = await fetch("http://10.0.0.120:5000/api/userdata", {
-        method: "GET",
+      response = await fetch('http://localhost:5000/api/userdata', {
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
-          "x-access-tokens": token,
+          'Content-Type': 'application/json',
+          'x-access-tokens': token,
         },
       });
 
@@ -63,10 +63,10 @@ const Profile = ({ navigation }) => {
     let json;
 
     getToken().then(async (token) => {
-      response = await fetch("http://10.0.0.120:5000/api/StockPortfolio", {
-        method: "GET",
+      response = await fetch('http://localhost:5000/api/StockPortfolio', {
+        method: 'GET',
         headers: {
-          "x-access-tokens": token,
+          'x-access-tokens': token,
         },
       });
 
@@ -82,11 +82,11 @@ const Profile = ({ navigation }) => {
       setTracking(trackingList.length);
       setUsername(json.stockPortfolioDICT.userName);
 
-      if (trackerList.length === 1 && trackerList[0] === "") {
+      if (trackerList.length === 1 && trackerList[0] === '') {
         setTrackers(0);
       }
 
-      if (trackingList.length === 1 && trackingList[0] === "") {
+      if (trackingList.length === 1 && trackingList[0] === '') {
         setTracking(0);
       }
 
@@ -104,11 +104,11 @@ const Profile = ({ navigation }) => {
         let response;
         let json;
 
-        response = await fetch("http://10.0.0.120:5000/stockInfo", {
-          method: "POST",
+        response = await fetch('http://localhost:5000/stockInfo', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            "x-access-tokens": token,
+            'Content-Type': 'application/json',
+            'x-access-tokens': token,
           },
           body: JSON.stringify({ TICKER: tickerList[i] }),
         });
@@ -149,7 +149,7 @@ const Profile = ({ navigation }) => {
           <ListItem.Title>{portfolioData.shares[index]} shares</ListItem.Title>
         </ListItem.Content>
         <ListItem.Content
-          style={{ flexDirection: "row", justifyContent: "flex-end" }}
+          style={{ flexDirection: 'row', justifyContent: 'flex-end' }}
         >
           <ListItem.Title>
             {`${(
@@ -168,18 +168,18 @@ const Profile = ({ navigation }) => {
     <SafeAreaView>
       <Header
         centerComponent={{
-          text: "Profile",
-          style: { color: "#fff", fontWeight: "bold", fontSize: 20 },
+          text: 'Profile',
+          style: { color: '#fff', fontWeight: 'bold', fontSize: 20 },
         }}
         containerStyle={{
-          backgroundColor: "#1e88e5",
+          backgroundColor: '#1e88e5',
         }}
       />
       <ScrollView>
         <View style={styles.profileContainer}>
           <View style={styles.profileImage}>
             <Image
-              source={require("../assets/smiley.jpg")}
+              source={require('../assets/smiley.jpg')}
               style={styles.image}
               resizeMode="center"
             />
@@ -195,7 +195,7 @@ const Profile = ({ navigation }) => {
             style={[
               styles.statsBox,
               {
-                borderColor: "#e0e0e0",
+                borderColor: '#e0e0e0',
                 borderRightWidth: 1.2,
               },
             ]}
@@ -211,13 +211,13 @@ const Profile = ({ navigation }) => {
         <Button
           title="Find People"
           containerStyle={{ margin: 20 }}
-          onPress={() => navigation.navigate("Find People")}
+          onPress={() => navigation.navigate('Find People')}
         />
         <Button
           title="Sign out"
           type="outline"
           containerStyle={{ marginLeft: 20, marginRight: 20, marginBottom: 15 }}
-          onPress={() => removeToken().then(navigation.navigate("Login"))}
+          onPress={() => removeToken().then(navigation.navigate('Login'))}
         />
 
         <Text style={styles.sectionHeading}>My Portfolio</Text>
@@ -237,23 +237,23 @@ const Profile = ({ navigation }) => {
 const styles = StyleSheet.create({
   profileContainer: {
     margin: 20,
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   infoContainer: {
     marginLeft: 20,
   },
   username: {
-    color: "#52575D",
-    fontWeight: "200",
+    color: '#52575D',
+    fontWeight: '200',
     fontSize: 20,
   },
   email: {
-    color: "#AEB5BC",
+    color: '#AEB5BC',
     fontSize: 14,
   },
   sectionHeading: {
-    color: "#ffa726",
+    color: '#ffa726',
     fontSize: 20,
     margin: 10,
     marginLeft: 20,
@@ -264,28 +264,28 @@ const styles = StyleSheet.create({
     width: undefined,
   },
   number: {
-    color: "#52575D",
+    color: '#52575D',
     fontSize: 22,
   },
   subText: {
     fontSize: 15,
-    color: "#AEB5BC",
-    fontWeight: "500",
+    color: '#AEB5BC',
+    fontWeight: '500',
   },
   profileImage: {
     width: 80,
     height: 80,
     borderRadius: 100,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   statsContainer: {
-    flexDirection: "row",
-    alignSelf: "center",
+    flexDirection: 'row',
+    alignSelf: 'center',
     margin: 20,
   },
   statsBox: {
     padding: 10,
-    alignItems: "center",
+    alignItems: 'center',
     flex: 1,
   },
   stockContainer: {
