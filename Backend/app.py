@@ -367,7 +367,8 @@ def stockInfo():
 @app.route('/newsFeed', methods =['POST'])
 @TokenRequired
 def newsFeed():
-    newsapi = NewsApiClient(api_key='f84069d717b3400aa52221602a964b8d')
+    #newsapi = NewsApiClient(api_key='f84069d717b3400aa52221602a964b8d')
+    newsapi = NewsApiClient(api_key='8bd68343819f420a9c9f37c7db4cbd94')
 
     stockPortfolio=StockPortfolio.query.filter_by(public_id=request.user['uid']).first()
     tickerList = stockPortfolio.stocks
